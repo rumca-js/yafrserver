@@ -23,7 +23,7 @@ from rsshistory.webtools import (
 # increment major version digit for releases, or link name changes
 # increment minor version digit for JSON data changes
 # increment last digit for small changes
-__version__ = "4.0.17"
+__version__ = "4.0.18"
 
 
 engine = create_engine("sqlite:///feedclient.db")
@@ -65,6 +65,7 @@ def index():
     command_links = []
     command_links.append({"link" : "/entries", "name":"entries", "description":"Shows entries"})
     command_links.append({"link" : "/sources", "name":"sources", "description":"Shows sources"})
+    command_links.append({"link" : "/search", "name":"search", "description":"Search"})
 
     # fmt: on
 
@@ -115,6 +116,21 @@ def entries():
             """.format(entry.id, entry.thumbnail, entry.title, entry.link, entry.date_published, source.title)
 
     return get_html(id=0, body=text, title="Entries")
+
+
+@app.route("/search")
+def search():
+    text = """
+    <form action="/entries" method="get">
+        <input type="text" name="query" placeholder="Search..." required>
+        <button type="submit">Search</button>
+    </form>
+
+    <div><a href="/entries?link=youtube.com">YouTube</a></div>
+    <div><a href="/entries?link=reddit.com">Reddit</a></div>
+    """
+
+    return get_html(id=0, body=text, title="Search")
 
 
 @app.route("/entry")
