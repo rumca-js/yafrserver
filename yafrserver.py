@@ -20,6 +20,12 @@ from rsshistory.webtools import (
 )
 
 
+# increment major version digit for releases, or link name changes
+# increment minor version digit for JSON data changes
+# increment last digit for small changes
+__version__ = "4.0.17"
+
+
 engine = create_engine("sqlite:///feedclient.db")
 #model = SqlModel(engine=engine)
 client = FeedClient(engine=engine)
@@ -125,9 +131,13 @@ def entry():
         source = client.get_source(entry.source)
 
         handler = Url.get_type(entry.link)
-        if handler.get_link_embed():
+        try:
             embed = handler.get_link_embed()
+        except Exception as E:
+            embed = None
+            pass
 
+        if embed:
             text += """
             <div width=50% height=50%>
             <iframe src="{0}" frameborder="0" allowfullscreen class="youtube_player_frame" referrerpolicy="no-referrer-when-downgrade"></iframe>
@@ -248,7 +258,7 @@ def background_refresh():
 
 
 def start_server():
-    host = "127.0.0.1"
+    host = "0.0.0.0"
     port=8000
 
     context = None
