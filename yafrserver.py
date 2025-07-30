@@ -23,7 +23,7 @@ from rsshistory.webtools import (
 # increment major version digit for releases, or link name changes
 # increment minor version digit for JSON data changes
 # increment last digit for small changes
-__version__ = "4.0.18"
+__version__ = "4.0.19"
 
 
 engine = create_engine("sqlite:///feedclient.db")
@@ -43,6 +43,16 @@ def get_html(id, body, title="", index=False):
     <html>
     <head>
         <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+        <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/jszip/dist/jszip.min.js"></script>
+
+        <link rel="stylesheet" href="/static/css/styles.css_style-light.css?1753905798">
+        <script src="/static/library.js?=7"></script>
+        <script src="/static/entries_library.js?=7"></script>
+
         <title>{}</title>
     </head>
     <body>
@@ -85,8 +95,66 @@ def entries():
 
     link = request.args.get("link")
     source_id = request.args.get("source")
+    page = request.args.get("page")
 
     index = 0
+
+    entry_id = request.args.get("id")
+    link = f"/entries-json?link={link}&page={page}"
+
+    text = """
+    <div id="listData"></div>
+    <script>
+        let view_display_type = "search-engine";
+        let view_show_icons = true;
+        let view_small_icons = false;
+        let show_pure_links = false;
+        let highlight_bookmarks = false;
+        let sort_function = "-date_published"; // page_rating_votes, date_published
+        let default_page_size = 200;
+
+       getDynamicJson("{}", function(entries) {{
+          var finished_text = getEntriesList(entries);
+          $('#listData').html(finished_text);
+       }});
+    </script>
+    """.format(link)
+
+    return get_html(id=0, body=text, title="Entries")
+
+
+def entry_to_json(entry):
+    json = {}
+    json["id"] = entry.id
+    json["title"] = entry.title
+    json["description"] = entry.description
+    json["link"] = entry.link
+    json["date_published"] = str(entry.date_published)
+    json["status_code"] = entry.status_code
+    json["thumbnail"] = entry.thumbnail
+    json["language"] = entry.language
+    json["permanent"] = entry.permanent
+    json["author"] = entry.author
+    json["album"] = entry.album
+
+    return json
+
+def source_to_json(source):
+    json = {}
+    json["title"] = source.title
+    json["url"] = source.url
+
+    return json
+
+
+@app.route("/entries-json")
+def entries_json():
+    link = request.args.get("link")
+    page = request.args.get("page")
+    source_id = request.args.get("source")
+
+    index = 0
+    entries_json = []
 
     entries = client.get_entries()
     for entry in reversed(entries):
@@ -96,26 +164,25 @@ def entries():
         if source_id and entry.source != int(source_id):
             continue
 
-        index += 1
+        entry_json = entry_to_json(entry)
 
-        if index > 1000:
-            break
+        entries_json.append(entry_json)
 
-        source = client.get_source(entry.source)
+    return jsonify(entries_json)
 
-        text += """
-            <a href="/entry?id={}" style="display: flex; align-items: center; gap: 10px; text-decoration: none; color: inherit; margin-bottom: 10px;">
-                <img src="{}" width="100px" style="flex-shrink: 0;"/>
-                <div>
-                    <div>{}</div>
-                    <div>{}</div>
-                    <div>{}</div>
-                    <div>{}</div>
-                </div>
-            </a>
-            """.format(entry.id, entry.thumbnail, entry.title, entry.link, entry.date_published, source.title)
 
-    return get_html(id=0, body=text, title="Entries")
+@app.route("/entry-json")
+def entry_json():
+    link = request.args.get("link")
+    id = request.args.get("id")
+
+    entry_json = {}
+
+    entry = client.get_entry(id=id)
+    if entry:
+        entry_json = entry_to_json(entry)
+
+    return jsonify(entry_json)
 
 
 @app.route("/search")
@@ -135,59 +202,27 @@ def search():
 
 @app.route("/entry")
 def entry():
-    text = ""
-
-    link = request.args.get("link")
     id = request.args.get("id")
-    index = 0
 
-    entry = client.get_entry(id = id)
+    link = f"/entry-json?id={id}"
 
-    if entry:
-        source = client.get_source(entry.source)
+    text = """
+    <div id="entryData"></div>
+    <script>
+        let view_display_type = "search-engine";
+        let view_show_icons = true;
+        let view_small_icons = false;
+        let show_pure_links = false;
+        let highlight_bookmarks = false;
+        let sort_function = "-date_published";
+        let default_page_size = 200;
 
-        handler = Url.get_type(entry.link)
-        try:
-            embed = handler.get_link_embed()
-        except Exception as E:
-            embed = None
-            pass
-
-        if embed:
-            text += """
-            <div width=50% height=50%>
-            <iframe src="{0}" frameborder="0" allowfullscreen class="youtube_player_frame" referrerpolicy="no-referrer-when-downgrade"></iframe>
-            </div>
-            """.format(embed)
-
-            text += """
-                <a href="{}" style="display: flex; align-items: center; gap: 10px; text-decoration: none; color: inherit; margin-bottom: 10px;">
-                    <div>
-                        <div>{}</div>
-                        <div>{}</div>
-                        <div>{}</div>
-                        <div>{}</div>
-                        <pre>{}</pre>
-                    </div>
-                </a>
-                """.format(entry.link, entry.thumbnail, entry.title, entry.link, entry.date_published, source.title, entry.description)
-
-        else:
-            text += """
-                <a href="{}" style="display: flex; align-items: center; gap: 10px; text-decoration: none; color: inherit; margin-bottom: 10px;">
-                    <div>
-                        <img src="{}" width="200px" style="flex-shrink: 0;"/>
-                        <div>{}</div>
-                        <div>{}</div>
-                        <div>{}</div>
-                        <div>{}</div>
-                        <pre>{}</pre>
-                    </div>
-                </a>
-                """.format(entry.link, entry.thumbnail, entry.title, entry.link, entry.date_published, source.title, entry.description)
-
-    else:
-        text = "not found"
+        getDynamicJson("{}", function(entry) {{
+            var finished_text = getEntryDetailText(entry);
+            $('#entryData').html(finished_text);
+        }});
+    </script>
+    """.format(link)
 
     return get_html(id=0, body=text, title="Entries")
 

@@ -1,0 +1,307 @@
+.title-link-container {
+    display: flex;
+    align-items: flex-start;
+    max-width: 100%;
+}
+
+.title-thumbnail-container {
+    flex-shrink: 0;
+    margin-right: 1em;
+}
+
+.title-thumbnail {
+    height: 4em;
+    width: auto;
+    object-fit: cover;
+    object-position: center;
+    border-radius: 4px;
+}
+
+.title-text-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Layout */
+
+.sidebar-nav {
+    margin-top: 20px;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+}
+
+.body-style {
+}
+
+.page-body {
+}
+
+hr {
+    margin: 0px;
+    padding: 0px;
+}
+
+.link-title {
+    margin : 0px;
+    padding: 0px;
+}
+
+.link-list a{
+}
+
+.link-list a:link, .link-list a:visited, .link-list a:active {
+}
+
+.link-list a:hover {
+}
+
+.link-detail-thumbnail {
+     max-width: 20%;
+     min-width: 15%;
+     max-height: 20%;
+     min-height: 15%;
+}
+
+.link-detail-description img {
+     clear: both;
+     max-width: 100%;
+     height: auto;
+     float: right;
+}
+
+.mainbutton-icon {
+    /* icon used in main menu */
+    width:2em;
+    filter: invert(1);
+}
+
+/* simple buttons used by views */
+.content-icon {
+    width:1em;
+    filter: invert(1);
+}
+
+/* Basic Content elements */
+
+.error-text {
+    color : red;
+}
+
+.icon-small {
+    /* icon image of generic icons. related icons, etc */
+    height:3em;
+    width:3em;
+    object-fit:cover;
+    object-position:0 0;
+}
+.icon-normal {
+    /* icon image of generic icons. related icons, etc */
+    height:4em;
+    width:4em;
+    object-fit:cover;
+    object-position:0 0;
+}
+
+.contentbuttonmenu {
+    display: block;
+}
+
+.link-list-thumbnail {
+    width: 10%;
+}
+
+.link-list-item-title {
+    font-weight: bold;
+    text-align: left;
+    text-decoration: none;
+}
+
+.link-list-item-description {
+    font-style:italic;
+}
+
+/* List containers */
+
+.container_standard {
+    margin-top: 20px;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch
+}
+
+.container_clickable-tags {
+    margin-top: 20px;
+    padding: 0;
+    list-style: none;
+}
+
+.container_line-and-buttons {
+    margin-top: 20px;
+    padding: 0;
+    list-style: none;
+}
+
+.container_gallery {
+    margin-top: 20px;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.container_search-engine {
+    margin-top: 20px;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch
+}
+
+.element_standard, .element_standard:link, .element_standard:visited {
+    color : #ececec !important;
+    padding: 0px 15px;
+    text-align: left;
+    text-decoration: none;
+    margin-bottom:3px;
+}
+
+.element_standard:hover, .element_standard:active {
+    color: black !important;
+    background-color: #959595 !important;
+    border-color:white !important;
+}
+
+.element_standard_selected, .element_standard_selected:link, .element_standard_selected:visited, .element_standard_selected:active {
+    color : #a0ffa0;
+    text-decoration: none;
+}
+
+.element_standard_selected:hover {
+    color: black !important;
+    background-color: green !important;
+}
+
+.element_clickable-tags, .element_clickable-tags:link, .element_clickable-tags:visited, .element_clickable-tags:active {
+    color : #373737;
+    background-color: #e9e9e9;
+    padding: 0px 15px;
+    text-align: left;
+    text-decoration: none;
+    margin-bottom:3px;
+}
+
+.element_clickable-tags a {
+    text-decoration: none;
+}
+
+.element_clickable-tags:hover {
+    color: green !important;
+    background-color: #f4f4f4 !important;
+}
+
+.element_clickable-tags_selected, .element_clickable-tags_selected:link, .element_clickable-tags_selected:active, .element_clickable-tags_selected:visited {
+}
+
+.element_line-and-buttons, .element_line-and-buttons:link, .element_line-and-buttons:active, .element_line-and-buttons:visited {
+    color : #373737;
+    background-color: #e9e9e9;
+    padding: 0px 15px;
+    text-align: left;
+    text-decoration: none;
+    margin-bottom:3px;
+}
+
+.element_line-and-buttons a {
+    text-decoration: none;
+}
+
+.element_line-and-buttons a:hover {
+    color: green !important;
+    background-color: #f4f4f4 !important;
+}
+
+.element_line-and-buttons_selected, .element_line-and-buttons_selected:link, .element_line-and-buttons_selected:visited, .element_line-and-buttons_selected:active {
+}
+
+.element_gallery, .element_gallery:link, .element_gallery:active, .element_gallery:visited {
+    color : #ececec !important;
+    text-overflow: ellipsis; 
+    max-width: 18%; 
+    min-width: 18%; 
+    width: auto; 
+    aspect-ratio: 1 / 1;
+    text-decoration: none;
+    display:flex;
+    flex-direction:column;
+}
+
+.element_gallery a {
+    text-decoration: none;
+}
+
+.element_gallery:hover {
+    color: black  !important;;
+    background-color: #b5b5b5 !important;
+    border-color:white !important;
+}
+
+.element_gallery_selected, .element_gallery_selected:link, .element_gallery_selected:active, .element_gallery_selected:visited {
+    color : #a0ffa0;
+    background-color: #355035;
+}
+
+.element_gallery_selected:hover {
+    color: black !important;
+    background-color: green !important;
+}
+
+.element_search-engine, .element_search-engine:link, .element_search-engine:visited {
+    color : #ececec !important;
+    padding: 0px 15px;
+    text-align: left;
+    text-decoration: none;
+    margin-bottom:3px;
+}
+
+.element_search-engine:hover, .element_search-engine:active{
+    color: black !important;
+    background-color: #959595 !important;
+    border-color:white !important;
+}
+
+.element_search-engine_selected, .element_search-engine_selected:link, .element_search-engine_selected:visited, .element_search-engine_selected:active {
+    color : green;  /* not inherited */
+    text-decoration: none;
+}
+
+/* end of view elements */
+
+/* video box, youtube player */
+
+.youtube_player_container {
+    position: relative;
+    width: 80%;
+    padding-bottom: 46.25%;
+    /* background-color: yellow; */
+}
+.youtube_player_frame {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border: 0;
+}
+
+/* Configuration pages */
+.management-box {
+    margin: 5px;
+    padding: 5px;
+    background-color: #f4f4f4;
+}
