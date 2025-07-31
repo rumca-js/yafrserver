@@ -7,11 +7,17 @@ import threading
 
 from sqlalchemy import (
     create_engine,
+    or_,
 )
 
 from flask import Flask, request, jsonify, Response
 
-from utils.sqlmodel import SqlModel
+from utils.sqlmodel import (
+    SqlModel,
+    EntriesTable,
+    EntriesTableController,
+    SourcesTable,
+)
 from rsshistory.webtools import (
    WebConfig,
    RemoteServer,
@@ -23,7 +29,7 @@ from rsshistory.webtools import (
 # increment major version digit for releases, or link name changes
 # increment minor version digit for JSON data changes
 # increment last digit for small changes
-__version__ = "4.0.20"
+__version__ = "4.0.21"
 
 
 engine = create_engine("sqlite:///feedclient.db")
@@ -80,13 +86,19 @@ def index():
     command_links.append({"link" : "/search", "name":"search", "description":"Search"})
 
     # fmt: on
+    text = ""
+    text += "<div class='container'>"
 
-    text = """<h1>Commands</h1>"""
+    text += """
+    <h1>Commands</h1>
+    """
 
     for link_data in command_links:
         text += """<div><a href="{}?id={}">{}</a> - {}</div>""".format(
             link_data["link"], id, link_data["name"], link_data["description"]
         )
+
+    text += "</div>"
 
     return get_html(id=id, body=text, title="Yafr server", index=True)
 
@@ -96,13 +108,13 @@ def entries():
     text = ""
 
     link = request.args.get("link") or ""
-    source_id = request.args.get("source")
+    source_id = request.args.get("source_id")
     page = request.args.get("page") or ""
 
     index = 0
 
     entry_id = request.args.get("id")
-    link = f"/entries-json?link={link}&page={page}"
+    link = f"/entries-json?link={link}&page={page}&source_id={source_id}"
 
     text = """
     <div id="listData"></div>
@@ -151,27 +163,32 @@ def source_to_json(source):
 
 @app.route("/entries-json")
 def entries_json():
-    link = request.args.get("link")
+    link = request.args.get("link") or None
+    source_id = request.args.get("source_id")
+    if source_id == "None":
+        source_id = None
+    if source_id:
+        source_id = int(source_id)
     page = request.args.get("page") or 1
-    source_id = request.args.get("source")
-
     page = int(page)
 
-    index = 0
     entries_json = []
 
-    entries = client.get_entries(page=page, rows_per_page=entries_per_page)
+    conditions = []
+    if link and source_id:
+        conditions.append(
+            or_(
+                EntriesTable.link.ilike("%{link}%"),
+                EntriesTable.source == source_id
+            )
+        )
+    elif link:
+        conditions.append(EntriesTable.link.ilike(f"%{link}%"))
+    elif source_id:
+        conditions.append(EntriesTable.source==source_id)
+
+    entries = client.get_entries(page=page, rows_per_page=entries_per_page, conditions=conditions)
     for entry in reversed(entries):
-        if link and entry.link.find(link) == -1:
-            continue
-
-        if source_id and entry.source != int(source_id):
-            continue
-
-        index += 1
-        if index > entries_per_page:
-            break
-
         entry_json = entry_to_json(entry)
 
         entries_json.append(entry_json)
@@ -182,7 +199,7 @@ def entries_json():
 @app.route("/entry-json")
 def entry_json():
     link = request.args.get("link")
-    id = request.args.get("id")
+    id = request.args.get("entry_id")
 
     entry_json = {}
 
@@ -210,9 +227,9 @@ def search():
 
 @app.route("/entry")
 def entry():
-    id = request.args.get("id")
+    id = request.args.get("entry_id")
 
-    link = f"/entry-json?id={id}"
+    link = f"/entry-json?entry_id={id}"
 
     text = """
     <div class="container">
@@ -244,26 +261,22 @@ def sources():
     text = ""
 
     link = request.args.get("link")
-    index = 0
 
-    sources = client.get_sources()
+    sources = client.get_sources(page=1, rows_per_page=entries_per_page)
     for source in sources:
         if link and source.url.find(link) == -1:
             continue
 
-        index += 1
-
-        if index > entries_per_page:
-            break
-
         text += """
-            <a href="/source?id={}" style="display: flex; align-items: center; gap: 10px; text-decoration: none; color: inherit; margin-bottom: 10px;">
+        <div class="container">
+            <a href="/source?source_id={}" style="display: flex; align-items: center; gap: 10px; text-decoration: none; color: inherit; margin-bottom: 10px;">
                 <img src="{}" width="100px" style="flex-shrink: 0;"/>
                 <div>
                     <div>{}</div>
                     <div>{}</div>
                 </div>
             </a>
+        </div>
             """.format(source.id, source.favicon, source.url, source.title)
 
     return get_html(id=0, body=text, title="Sources")
@@ -274,20 +287,21 @@ def source():
     text = ""
 
     link = request.args.get("link")
-    id = request.args.get("id")
-    index = 0
+    id = request.args.get("source_id")
 
     source = client.get_source(id=id)
 
     if source:
         text += """
+        <div class="container">
                 <img src="{}" width="100px" style="flex-shrink: 0;"/>
                 <div>
+                    <div>ID: {}</div>
                     <div>{}</div>
                     <div>{}</div>
-                    <div>{}</div>
-                    <a href="/entries?source={}">Entries</a>
+                    <a href="/entries?source_id={}">Entries</a>
                 </div>
+        </div>
             """.format(source.favicon, source.id, source.title, source.url, source.id)
     else:
         text = "Not found"

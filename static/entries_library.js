@@ -29,7 +29,7 @@ function isEntryValid(entry) {
 
 
 function getEntryLink(entry) {
-    return show_pure_links ? entry.link : `/entry?id=${entry.id}`;
+    return show_pure_links ? entry.link : `/entry?entry_id=${entry.id}`;
 }
 
 
