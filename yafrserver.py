@@ -4,6 +4,7 @@ This is example script about how to use this project as a simple RSS reader
 import json
 import time
 import threading
+import os
 
 from sqlalchemy import (
     create_engine,
@@ -29,7 +30,7 @@ from rsshistory.webtools import (
 # increment major version digit for releases, or link name changes
 # increment minor version digit for JSON data changes
 # increment last digit for small changes
-__version__ = "4.0.23"
+__version__ = "4.0.24"
 
 
 engine = create_engine("sqlite:///feedclient.db")
