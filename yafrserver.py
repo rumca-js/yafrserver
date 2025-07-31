@@ -29,13 +29,14 @@ from rsshistory.webtools import (
 # increment major version digit for releases, or link name changes
 # increment minor version digit for JSON data changes
 # increment last digit for small changes
-__version__ = "4.0.22"
+__version__ = "4.0.23"
 
 
 engine = create_engine("sqlite:///feedclient.db")
 #model = SqlModel(engine=engine)
 client = FeedClient(engine=engine)
 
+reading = False
 entries_per_page = 200
 
 app = Flask(__name__)
@@ -126,6 +127,9 @@ def entries():
         let highlight_bookmarks = false;
         let sort_function = "-date_published"; // page_rating_votes, date_published
         let default_page_size = {};
+
+       let loading_text = getSpinnerText();
+       $('#listData').html(loading_text);
 
        getDynamicJson("{}", function(entries) {{
           var finished_text = getEntriesList(entries);
@@ -331,7 +335,9 @@ def background_refresh():
         client.follow_url(url)
 
     while True:
+        reading = True
         client.refresh()
+        reading = False
         time.sleep(60*10) # every 10 minutes
 
 
