@@ -239,6 +239,7 @@ def entry():
     <div class="container">
        <div id="entryData"></div>
     </div>
+
     <script>
         let view_display_type = "standard";
         let view_show_icons = true;
@@ -247,6 +248,9 @@ def entry():
         let highlight_bookmarks = false;
         let sort_function = "-date_published";
         let default_page_size = {};
+
+        let loading_text = getSpinnerText();
+        $('#entryData').html(loading_text);
 
         getDynamicJson("{}", function(entry) {{
             var finished_text = getEntryDetailText(entry);
