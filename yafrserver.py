@@ -29,7 +29,7 @@ from rsshistory.webtools import (
 # increment major version digit for releases, or link name changes
 # increment minor version digit for JSON data changes
 # increment last digit for small changes
-__version__ = "4.0.21"
+__version__ = "4.0.22"
 
 
 engine = create_engine("sqlite:///feedclient.db")
@@ -261,15 +261,16 @@ def sources():
     text = ""
 
     link = request.args.get("link")
+    page = request.args.get("page") or 1
+    page=int(page)
 
-    sources = client.get_sources(page=1, rows_per_page=entries_per_page)
+    sources = client.get_sources(page=page, rows_per_page=entries_per_page)
     for source in sources:
-        if link and source.url.find(link) == -1:
-            continue
+        link = f"/source?page={page}&source_id={source.id}"
 
         text += """
         <div class="container">
-            <a href="/source?source_id={}" style="display: flex; align-items: center; gap: 10px; text-decoration: none; color: inherit; margin-bottom: 10px;">
+            <a href="{}" style="display: flex; align-items: center; gap: 10px; text-decoration: none; color: inherit; margin-bottom: 10px;">
                 <img src="{}" width="100px" style="flex-shrink: 0;"/>
                 <div>
                     <div>{}</div>
@@ -277,7 +278,7 @@ def sources():
                 </div>
             </a>
         </div>
-            """.format(source.id, source.favicon, source.url, source.title)
+            """.format(link, source.favicon, source.url, source.title)
 
     return get_html(id=0, body=text, title="Sources")
 
