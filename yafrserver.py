@@ -23,12 +23,14 @@ from rsshistory.webtools import (
 # increment major version digit for releases, or link name changes
 # increment minor version digit for JSON data changes
 # increment last digit for small changes
-__version__ = "4.0.19"
+__version__ = "4.0.20"
 
 
 engine = create_engine("sqlite:///feedclient.db")
 #model = SqlModel(engine=engine)
 client = FeedClient(engine=engine)
+
+entries_per_page = 200
 
 app = Flask(__name__)
 
@@ -93,9 +95,9 @@ def index():
 def entries():
     text = ""
 
-    link = request.args.get("link")
+    link = request.args.get("link") or ""
     source_id = request.args.get("source")
-    page = request.args.get("page")
+    page = request.args.get("page") or ""
 
     index = 0
 
@@ -105,20 +107,20 @@ def entries():
     text = """
     <div id="listData"></div>
     <script>
-        let view_display_type = "search-engine";
+        let view_display_type = "standard";
         let view_show_icons = true;
         let view_small_icons = false;
         let show_pure_links = false;
         let highlight_bookmarks = false;
         let sort_function = "-date_published"; // page_rating_votes, date_published
-        let default_page_size = 200;
+        let default_page_size = {};
 
        getDynamicJson("{}", function(entries) {{
           var finished_text = getEntriesList(entries);
           $('#listData').html(finished_text);
        }});
     </script>
-    """.format(link)
+    """.format(entries_per_page, link)
 
     return get_html(id=0, body=text, title="Entries")
 
@@ -150,19 +152,25 @@ def source_to_json(source):
 @app.route("/entries-json")
 def entries_json():
     link = request.args.get("link")
-    page = request.args.get("page")
+    page = request.args.get("page") or 1
     source_id = request.args.get("source")
+
+    page = int(page)
 
     index = 0
     entries_json = []
 
-    entries = client.get_entries()
+    entries = client.get_entries(page=page, rows_per_page=entries_per_page)
     for entry in reversed(entries):
         if link and entry.link.find(link) == -1:
             continue
 
         if source_id and entry.source != int(source_id):
             continue
+
+        index += 1
+        if index > entries_per_page:
+            break
 
         entry_json = entry_to_json(entry)
 
@@ -207,22 +215,26 @@ def entry():
     link = f"/entry-json?id={id}"
 
     text = """
-    <div id="entryData"></div>
+    <div class="container">
+       <div id="entryData"></div>
+    </div>
     <script>
-        let view_display_type = "search-engine";
+        let view_display_type = "standard";
         let view_show_icons = true;
         let view_small_icons = false;
         let show_pure_links = false;
         let highlight_bookmarks = false;
         let sort_function = "-date_published";
-        let default_page_size = 200;
+        let default_page_size = {};
 
         getDynamicJson("{}", function(entry) {{
             var finished_text = getEntryDetailText(entry);
             $('#entryData').html(finished_text);
+
+            document.title = entry.title;
         }});
     </script>
-    """.format(link)
+    """.format(entries_per_page, link)
 
     return get_html(id=0, body=text, title="Entries")
 
@@ -241,7 +253,7 @@ def sources():
 
         index += 1
 
-        if index > 1000:
+        if index > entries_per_page:
             break
 
         text += """

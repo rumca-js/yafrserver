@@ -327,7 +327,7 @@ class SearchResultHandler(AlchemyRowHandler):
         print_entry(row)
 
 
-def get_entries(db, source_id=None, ascending=True):
+def get_entries(db, source_id=None, ascending=True, page=1, rows_per_page=200):
     Session = db.get_session()
 
     with Session() as session:
@@ -340,6 +340,9 @@ def get_entries(db, source_id=None, ascending=True):
             query = query.order_by(asc(EntriesTable.date_published))
         else:
             query = query.order_by(desc(EntriesTable.date_published))
+
+        offset = (page - 1) * rows_per_page
+        query = query.offset(offset).limit(rows_per_page)
 
         return query.all()
 
@@ -472,7 +475,7 @@ class FeedClient(object):
         date_now = DateUtils.get_datetime_now_utc()
         print("Current time:{}".format(date_now))
 
-    def get_entries(self, source_id=None, ascending=True):
+    def get_entries(self, source_id=None, ascending=True, page=1, rows_per_page=200):
         Session = self.db.get_session()
 
         with Session() as session:
@@ -486,6 +489,9 @@ class FeedClient(object):
             else:
                 query = query.order_by(desc(EntriesTable.date_published))
 
+            offset = (page - 1) * rows_per_page
+            query = query.offset(offset).limit(rows_per_page)
+
             return query.all()
 
     def get_entry(self, id):
@@ -498,11 +504,14 @@ class FeedClient(object):
 
             return query.first()
 
-    def get_sources(self):
+    def get_sources(self, page=1, rows_per_page=200):
         Session = self.db.get_session()
 
         with Session() as session:
             query = session.query(SourcesTable)
+
+            offset = (page - 1) * rows_per_page
+            query = query.offset(offset).limit(rows_per_page)
 
             return query.all()
 
