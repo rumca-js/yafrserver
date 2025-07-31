@@ -349,6 +349,11 @@ def start_server():
     host = "0.0.0.0"
     port=8000
 
+    if "YAFR_HOST" in os.environ:
+        host = os.environ["YAFR_HOST"]
+    if "YAFR_PORT" in os.environ:
+        port = int(os.environ["YAFR_port"])
+
     context = None
     app.run(debug=True, host=host, port=port, threaded=True)
 
