@@ -30,7 +30,7 @@ from rsshistory.webtools import (
 # increment major version digit for releases, or link name changes
 # increment minor version digit for JSON data changes
 # increment last digit for small changes
-__version__ = "4.0.25"
+__version__ = "4.0.26"
 
 
 file_name = "feedclient.db"
@@ -195,7 +195,7 @@ def entries_json():
     elif source_id:
         conditions.append(EntriesTable.source==source_id)
 
-    entries = client.get_entries(page=page, rows_per_page=entries_per_page, conditions=conditions)
+    entries = client.get_entries(page=page, rows_per_page=entries_per_page, conditions=conditions, ascending=False)
     for entry in reversed(entries):
         entry_json = entry_to_json(entry)
 
