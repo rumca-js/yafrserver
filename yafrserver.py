@@ -30,7 +30,7 @@ from rsshistory.webtools import (
 # increment major version digit for releases, or link name changes
 # increment minor version digit for JSON data changes
 # increment last digit for small changes
-__version__ = "4.0.30"
+__version__ = "4.0.31"
 
 
 file_name = "feedclient.db"
@@ -135,9 +135,9 @@ def get_html(id, body, title="", index=False):
         <script src="https://cdn.jsdelivr.net/npm/jszip/dist/jszip.min.js"></script>
 
         <link rel="stylesheet" href="/static/css/styles.css_style-light.css?1753905798">
-        <script src="/static/library.js?=9"></script>
-        <script src="/static/entries_library.js?=9"></script>
-        <script src="/static/listview.js?=9"></script>
+        <script src="/static/library.js?=10"></script>
+        <script src="/static/entries_library.js?=10"></script>
+        <script src="/static/listview.js?=10"></script>
 
         <title>{title}</title>
     </head>
@@ -362,8 +362,9 @@ def entry():
 
             document.title = entry.title;
         }});
+        getDislikeData(1, entry_id={});
     </script>
-    """.format(entries_per_page, link)
+    """.format(entries_per_page, link, id)
 
     return get_html(id=0, body=text, title="Entries")
 
@@ -422,8 +423,41 @@ def source():
     return get_html(id=0, body=text, title="Source")
 
 
+@app.route("/entry-dislikes")
+def entry_dislikes():
+    text = ""
+
+    id = request.args.get("entry_id")
+
+    # what if it is in archive
+
+    entry = client.get_entry(id=id)
+
+    if not entry:
+        return jsonify(
+            {"errors": ["Entry does not exists"]}
+        )
+
+    remote_server = RemoteServer(f"http://{crawler_server}:{crawler_port}")
+
+    json_obj = remote_server.get_socialj(entry.link)
+    if not json_obj:
+        return jsonify(
+            {"errors": ["Could not obtain social data"]},
+        )
+
+    try:
+        return jsonify(json_obj)
+    except Exception as E:
+        return jsonify(
+                {"errors": ["Could not dump social data: {}".format(E)]},
+        )
+
+    return get_html(id=0, body=text, title="Source")
+
+
 def fetch(url):
-    request_server = RemoteServer("http://127.0.0.1:3000")
+    request_server = RemoteServer(f"http://{crawler_server}:{crawler_port}")
 
     all_properties = request_server.get_getj(url, name="RequestsCrawler")
     return all_properties
@@ -436,13 +470,16 @@ def read_sources(file):
 
 
 def background_refresh():
-    global reading_sources, reading_entries
+    from utils.controllers.sources import SourceDataBuilder
+    global reading_sources, reading_entries, client
+
     news_sources = read_sources("init_sources_news.json")
     reading_sources = True
-    for source in news_sources:
-        url = source["url"]
-        #print(url)
-        client.follow_url(url)
+    for key, source in enumerate(news_sources):
+        builder = SourceDataBuilder(conn=client.db)
+        source["id"] = key
+        print("Building {}".format(source["url"]))
+        builder.build(link_data = source)
     reading_sources = False
 
     while True:

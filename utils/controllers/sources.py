@@ -43,7 +43,22 @@ class SourceDataBuilder(object):
 
         return self.build_from_props()
 
+    def is_source(self):
+        Session = self.get_session()
+
+        with Session() as session:
+            count = (
+                session.query(SourcesTable)
+                .filter(SourcesTable.url == self.link_data["url"])
+                .count()
+            )
+            if count != 0:
+                return True
+
     def build_from_props(self):
+        if self.is_source():
+            return
+
         result = False
 
         Session = self.get_session()

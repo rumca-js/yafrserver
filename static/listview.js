@@ -47,6 +47,56 @@ function showSearchSuggestions() {
 }
 
 
+let currentgetDislikeData = 0;
+function getDislikeData(attempt = 1, entry_id=null) {
+    let requestgetDislikeData = ++currentgetDislikeData;
+    let url_address = `/entry-dislikes?entry_id=${entry_id}`;
+
+    $.ajax({
+       url: url_address,
+       type: 'GET',
+       timeout: 10000,
+       success: function(data) {
+           if (requestgetDislikeData != currentgetDislikeData) {
+               return;
+           }
+           if (data) {
+               entry_dislike_data = data;
+               fillDislike();
+           }
+       },
+       error: function(xhr, status, error) {
+           if (requestgetDislikeData != currentgetDislikeData) {
+               return;
+           }
+           if (attempt < 3) {
+               getDislikeData(attempt + 1);
+           } else {
+           }
+       }
+    });
+}
+
+function fillDislike() {
+    let parameters = $('#entryParameters').html();
+
+    let { thumbs_up, thumbs_down, view_count, upvote_ratio, upvote_view_ratio } = entry_dislike_data;
+
+    let text = [];
+
+    if (thumbs_up) text.push(`<div class="text-nowrap mx-1">👍${getHumanReadableNumber(thumbs_up)}</div>`);
+    if (thumbs_down) text.push(`<div class="text-nowrap mx-1">👎${getHumanReadableNumber(thumbs_down)}</div>`);
+    if (view_count) text.push(`<div class="text-nowrap mx-1">👁${getHumanReadableNumber(view_count)}</div>`);
+
+    if (upvote_ratio) text.push(`<div class="text-nowrap mx-1">👍/👎${parseFloat(upvote_ratio).toFixed(2)}</div>`);
+    if (upvote_view_ratio) text.push(`<div class="text-nowrap mx-1">👍/👁${parseFloat(upvote_view_ratio).toFixed(2)}</div>`);
+
+    parameters = `${parameters} ${text.join(" ")}`;
+
+    $('#entryParameters').html(parameters);
+}
+
+
 //-----------------------------------------------
 document.addEventListener('DOMContentLoaded', () => {
     console.log("Initializing")

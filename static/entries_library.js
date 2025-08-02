@@ -225,7 +225,7 @@ function getEntryParameters(entry) {
 
    let date_published = getEntryDatePublished(entry);
 
-   html_out += `<div class="text-nowrap"><strong>Publish date:</strong> ${date_published}</div>`;
+   html_out += `<div class="text-nowrap d-flex flex-wrap"" id="entryParameters"><strong>Publish date:</strong> ${date_published}</div>`;
 
    html_out += getEntryBookmarkBadge(entry);
    html_out += getEntryVotesBadge(entry);
