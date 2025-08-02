@@ -2,7 +2,6 @@ import json
 import requests
 import urllib.parse
 import base64
-from .webtools import PageResponseObject
 
 
 class RemoteServer(object):
@@ -214,6 +213,8 @@ class RemoteServer(object):
         return json_data
 
     def get_response(self, all_properties):
+        from .webtools import PageResponseObject
+
         properties = self.read_properties_section("Properties", all_properties)
         response_data = self.read_properties_section("Response", all_properties)
 

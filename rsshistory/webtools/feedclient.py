@@ -22,7 +22,6 @@ from utils.sqlmodel import (
 from datetime import timedelta, datetime, timezone
 
 from .remoteserver import RemoteServer
-from .url import Url
 
 from utils.dateutils import DateUtils
 from utils.serializers import HtmlExporter, JsonImporter
@@ -54,14 +53,14 @@ def print_source(source):
     print()
 
 
-def read_source(db, source):
+def read_source(db, source, server_location="127.0.0.1:3000"):
     result = []
 
     source_url = source.url
     source_title = source.title
     source_id = source.id
 
-    remote = RemoteServer("http://127.0.0.1:3000")
+    remote = RemoteServer(server_location)
     all_properties = remote.get_getj(source_url, name="RequestsCrawler")
 
     entries = remote.read_properties_section("Entries", all_properties)
@@ -102,7 +101,7 @@ class OutputWriter(object):
         print(self.date_limit)
 
 
-def fetch(db, parser, day_limit):
+def fetch(db, parser, day_limit, server_location="127.0.0.1:3000"):
     """
     fetch time is used to not spam servers every time you refresh anything
     """
@@ -138,7 +137,7 @@ def fetch(db, parser, day_limit):
 
         #print("\rReading {}".format(source.url), end="")
         print("\rReading {}".format(source.url), end="")
-        source_entries = read_source(db, source)
+        source_entries = read_source(db, source, server_location)
 
         for entry in source_entries:
             now = datetime.now(timezone.utc)
@@ -165,7 +164,7 @@ def fetch(db, parser, day_limit):
             print("Number of entries:{}".format(q.count()))
 
 
-async def fetch_async(db, parser, day_limit):
+async def fetch_async(db, parser, day_limit, server_location="127.0.0.1:3000"):
     """
     Async version is faster than sequentially asking all sites.
     fetch time is used to not spam servers every time you refresh anything
@@ -192,7 +191,7 @@ async def fetch_async(db, parser, day_limit):
 
         print("\rReading:{}".format(source.title), end="")
 
-        thread = asyncio.to_thread(read_source, db, source)
+        thread = asyncio.to_thread(read_source, db, source, server_location)
         threads.append(thread)
         sources_fetched.append(source)
 
@@ -344,9 +343,11 @@ def get_entries(db, source_id=None, ascending=True, page=1, rows_per_page=200):
 
 
 class FeedClient(object):
-    def __init__(self, day_limit=7, engine=None, parser=None, file_name="feedclient.db"):
+
+    def __init__(self, day_limit=7, engine=None, parser=None, file_name="feedclient.db", server_location="127.0.0.1:3000"):
         self.day_limit = day_limit
         self.engine = engine
+        self.server_location = server_location
 
         self.parser = parser
 
@@ -360,7 +361,7 @@ class FeedClient(object):
         self.db = SqlModel(database_file=self.database_file, engine=self.engine)
 
     def get(self, url):
-        request_server = RemoteServer("http://127.0.0.1:3000")
+        request_server = RemoteServer(self.server_location)
 
         all_properties = request_server.get_getj(url, name="RequestsCrawler")
         return all_properties
@@ -470,7 +471,7 @@ class FeedClient(object):
         c = EntriesTableController(self.db)
         c.remove(self.day_limit)
 
-        fetch(self.db, self.parser, self.day_limit)
+        fetch(self.db, self.parser, self.day_limit, self.server_location)
         #asyncio.run(fetch(self.db, self.parser, self.day_limit))
         date_now = DateUtils.get_datetime_now_utc()
         print("Current time:{}".format(date_now))
