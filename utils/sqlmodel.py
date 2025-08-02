@@ -123,7 +123,7 @@ class Base(DeclarativeBase):
 class EntriesTable(Base):
     __tablename__ = "linkdatamodel"
 
-    id: Mapped[int] = mapped_column(primary_key=True)
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     link: Mapped[str] = mapped_column(String(30), unique=True)
     title: Mapped[Optional[str]]
     description: Mapped[Optional[str]]
@@ -191,13 +191,13 @@ class EntriesTableController(object):
 class SourcesTable(Base):
     __tablename__ = "sourcedatamodel"
 
-    id: Mapped[int] = mapped_column(primary_key=True)
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     enabled: Mapped[bool] = mapped_column(default=True)
     url: Mapped[str] = mapped_column(unique=True)
     title: Mapped[Optional[str]]
     age: Mapped[int] = mapped_column(default=0)
-    category: Mapped[Optional[str]]
-    subcategory: Mapped[Optional[str]]
+    category_id: Mapped[Optional[int]]
+    subcategory_id: Mapped[Optional[int]]
     export_to_cms: Mapped[bool] = mapped_column(default=True)
     favicon: Mapped[Optional[str]]
     fetch_period: Mapped[Optional[int]]
@@ -269,7 +269,7 @@ class SourcesTableController(object):
 class SourceOperationalData(Base):
     __tablename__ = "sourceoperationaldata"
 
-    id: Mapped[int] = mapped_column(primary_key=True)
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     date_fetched = mapped_column(DateTime, nullable=True)
     source: Mapped[int]
 
@@ -328,7 +328,7 @@ class SourceOperationalDataController(object):
 class UserTags(Base):
     __tablename__ = "usertags"
 
-    id: Mapped[int] = mapped_column(primary_key=True)
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     date = mapped_column(DateTime)
     tag: Mapped[str] = mapped_column(String(1000))
 
@@ -338,7 +338,7 @@ class UserTags(Base):
 
 class UserBookmarks(Base):
     __tablename__ = "userbookmarks"
-    id: Mapped[int] = mapped_column(primary_key=True)
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
 
     date_bookmarked = mapped_column(DateTime)
 
@@ -348,7 +348,7 @@ class UserBookmarks(Base):
 
 class UserVotes(Base):
     __tablename__ = "uservotes"
-    id: Mapped[int] = mapped_column(primary_key=True)
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
 
     user: Mapped[str] = mapped_column(String(1000))
     vote: Mapped[int] = mapped_column(default=0)
@@ -359,7 +359,7 @@ class UserVotes(Base):
 
 class ReadMarkers(Base):
     __tablename__ = "readmarkers"
-    id: Mapped[int] = mapped_column(primary_key=True)
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     read_date = mapped_column(DateTime)
     source_object: Mapped[Optional[int]]
 
