@@ -19,7 +19,7 @@ build-clean:
 	docker build --no-cache -t $(USER_NAME)/$(APP_NAME) .
 
 run:
-	# docker run -p 3000:3000 $(USER_NAME)/$(APP_NAME)
+	# docker run -p 8777:8777 $(USER_NAME)/$(APP_NAME)
 	docker compose up
 
 list:

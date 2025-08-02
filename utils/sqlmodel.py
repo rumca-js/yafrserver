@@ -125,7 +125,7 @@ class EntriesTable(Base):
 
     id: Mapped[int] = mapped_column(primary_key=True)
     link: Mapped[str] = mapped_column(String(30), unique=True)
-    title: Mapped[str]
+    title: Mapped[Optional[str]]
     description: Mapped[Optional[str]]
     thumbnail: Mapped[Optional[str]]
     language: Mapped[Optional[str]]
@@ -194,7 +194,7 @@ class SourcesTable(Base):
     id: Mapped[int] = mapped_column(primary_key=True)
     enabled: Mapped[bool] = mapped_column(default=True)
     url: Mapped[str] = mapped_column(unique=True)
-    title: Mapped[str]
+    title: Mapped[Optional[str]]
     age: Mapped[int] = mapped_column(default=0)
     category: Mapped[Optional[str]]
     subcategory: Mapped[Optional[str]]

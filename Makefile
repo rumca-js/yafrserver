@@ -14,7 +14,6 @@
 
 CP = cp
 PROJECT_NAME = crawler-buddy
-PORT=3000
 
 # Assumptions:
 #  - python poetry is in your path
@@ -23,7 +22,6 @@ install:
 	poetry install
 
 server:
-	rm -rf storage
 	poetry run python yafrserver.py
 
 # Assumptions:

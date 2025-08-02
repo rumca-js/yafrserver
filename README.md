@@ -1,12 +1,12 @@
 # Yafr
 
-Yet another feed reader
+Yet another feed reader.
 
 This program allows you to collect RSS entries (also for YouTube).
 
 # Installation
 
-Most likely you would like to go with docker.
+Run docker image at [Docker HUB](https://hub.docker.com/r/rozbujnik/yafrserver).
 
 ## Manual installation
 

@@ -30,18 +30,25 @@ from rsshistory.webtools import (
 # increment major version digit for releases, or link name changes
 # increment minor version digit for JSON data changes
 # increment last digit for small changes
-__version__ = "4.0.27"
+__version__ = "4.0.28"
 
 
 file_name = "feedclient.db"
+reading_entries = False
+reading_sources = False
+entries_per_page = 200
 
+crawler_server = "127.0.0.1"
+if "CRAWLER_BUDDY_SERVER" in os.environ:
+    crawler_server = os.environ["CRAWLER_BUDDY_SERVER"]
+crawler_port = "3000"
+if "CRAWLER_BUDDY_PORT" in os.environ:
+    crawler_port = os.environ["CRAWLER_BUDDY_PORT"]
 
 engine = create_engine("sqlite:///{}".format(file_name))
 #model = SqlModel(engine=engine)
-client = FeedClient(engine=engine)
 
-reading = False
-entries_per_page = 200
+client = FeedClient(engine=engine, server_location=f"http://{crawler_server}:{crawler_port}")
 
 app = Flask(__name__)
 
@@ -102,6 +109,15 @@ def index():
         text += """<div><a href="{}?id={}">{}</a> - {}</div>""".format(
             link_data["link"], id, link_data["name"], link_data["description"]
         )
+
+    text += """ <h1>Info</h1> """
+    text += f""" <div>Crawler server= {crawler_server}:{crawler_port}</div>"""
+    text += f""" <div>DB= {file_name}</div>"""
+    if reading_entries:
+        text += f""" <div>Reading entries</div>"""
+    if reading_sources:
+        text += f""" <div>Reading sources</div>"""
+    text += f""" <div>Version= {__version__}</div>"""
 
     text += "</div>"
 
@@ -336,16 +352,19 @@ def read_sources(file):
 
 
 def background_refresh():
+    global reading_sources, reading_entries
     news_sources = read_sources("init_sources_news.json")
+    reading_sources = True
     for source in news_sources:
         url = source["url"]
         #print(url)
         client.follow_url(url)
+    reading_sources = False
 
     while True:
-        reading = True
+        reading_entries = True
         client.refresh()
-        reading = False
+        reading_entries = False
         time.sleep(60*10) # every 10 minutes
 
 
@@ -356,7 +375,7 @@ def start_server():
     if "YAFR_HOST" in os.environ:
         host = os.environ["YAFR_HOST"]
     if "YAFR_PORT" in os.environ:
-        port = int(os.environ["YAFR_port"])
+        port = int(os.environ["YAFR_PORT"])
 
     context = None
     app.run(debug=True, host=host, port=port, threaded=True)

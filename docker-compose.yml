@@ -1,0 +1,32 @@
+version: '3.7'
+services:
+  yafrserver:
+    image: rozbujnik/yafrserver
+    container_name: yafrserver
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - 8777:8777
+    environment:
+      CRAWLER_BUDDY_SERVER: crawlerbuddy
+      CRAWLER_BUDDY_PORT: 3000
+      YAFR_HOST: 0.0.0.0
+      YAFR_PORT: 8777
+      DEBUG: 1
+    networks:
+      - shared_network
+
+  crawlerbuddy:
+    image: rozbujnik/crawler-buddy
+    container_name: crawlerbuddy
+    ports:
+      - 3000:3000
+    environment:
+      CRAWLER_BUDDY_PORT: 3000
+    networks:
+      - shared_network
+
+networks:
+  shared_network:
+    driver: bridge

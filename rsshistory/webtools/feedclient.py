@@ -53,7 +53,7 @@ def print_source(source):
     print()
 
 
-def read_source(db, source, server_location="127.0.0.1:3000"):
+def read_source(db, source, server_location="http://127.0.0.1:3000"):
     result = []
 
     source_url = source.url
@@ -74,7 +74,8 @@ def read_source(db, source, server_location="127.0.0.1:3000"):
         item["source"] = source_id
         result.append(item)
 
-    print("\rRead:{}".format(source_url), end="")
+    #print("\rRead:{}".format(source_url), end="")
+    print("\rRead:{}".format(source_url))
 
     return result
 
@@ -101,7 +102,7 @@ class OutputWriter(object):
         print(self.date_limit)
 
 
-def fetch(db, parser, day_limit, server_location="127.0.0.1:3000"):
+def fetch(db, parser, day_limit, server_location="http://127.0.0.1:3000"):
     """
     fetch time is used to not spam servers every time you refresh anything
     """
@@ -164,7 +165,7 @@ def fetch(db, parser, day_limit, server_location="127.0.0.1:3000"):
             print("Number of entries:{}".format(q.count()))
 
 
-async def fetch_async(db, parser, day_limit, server_location="127.0.0.1:3000"):
+async def fetch_async(db, parser, day_limit, server_location="http://127.0.0.1:3000"):
     """
     Async version is faster than sequentially asking all sites.
     fetch time is used to not spam servers every time you refresh anything
@@ -344,7 +345,7 @@ def get_entries(db, source_id=None, ascending=True, page=1, rows_per_page=200):
 
 class FeedClient(object):
 
-    def __init__(self, day_limit=7, engine=None, parser=None, file_name="feedclient.db", server_location="127.0.0.1:3000"):
+    def __init__(self, day_limit=7, engine=None, parser=None, file_name="feedclient.db", server_location="http://127.0.0.1:3000"):
         self.day_limit = day_limit
         self.engine = engine
         self.server_location = server_location
@@ -659,9 +660,6 @@ class FeedClient(object):
         title = None
         if properties:
             title = properties["title"]
-
-        if not title:
-            title = input("{}. Specify title of URL:".format(page_url))
 
         source["url"] = page_url
         source["title"] = title
