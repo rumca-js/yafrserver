@@ -30,7 +30,7 @@ from rsshistory.webtools import (
 # increment major version digit for releases, or link name changes
 # increment minor version digit for JSON data changes
 # increment last digit for small changes
-__version__ = "4.0.28"
+__version__ = "4.0.29"
 
 
 file_name = "feedclient.db"
@@ -53,13 +53,78 @@ client = FeedClient(engine=engine, server_location=f"http://{crawler_server}:{cr
 app = Flask(__name__)
 
 
+def get_navbar():
+    text = """
+    <nav id="navbar" class="navbar sticky-top navbar-expand-lg navbar-light bg-light">
+      <div class="d-flex w-100">
+        <!-- Form with search input -->
+        <form action="/entries" method="get" class="d-flex w-100 ms-3" id="searchContainer" style="width: 60%;">
+          <div class="input-group">
+            <input id="searchInput" name="searchInput" class="form-control me-1 flex-grow-1" type="search" placeholder="Search" autofocus="" aria-label="Search">
+            <button id="dropdownButton" class="btn btn-outline-secondary" type="button">⌄</button>
+            <button id="searchButton" class="btn btn-outline-success" type="submit">🔍</button>
+          </div>
+        </form>
+
+        <!-- Navbar toggler button, aligned to the right -->
+        <button class="navbar-toggler ms-auto" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+      </div>
+    
+      <div class="collapse navbar-collapse ms-3" id="navbarSupportedContent">
+        <ul class="navbar-nav mr-auto">
+          <li class="nav-item active">
+            <a id="homeButton" class="nav-link" href="/">🏠</a>
+          </li>
+
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" id="navbarViewDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+              View
+            </a>
+            <ul class="dropdown-menu" aria-labelledby="navbarViewDropdown">
+                <li><a id="viewStandard" class="dropdown-item" href="#">Standard</a></li>
+                <li><a id="viewGallery" class="dropdown-item" href="#">Gallery</a></li>
+                <li><a id="viewSearchEngine" class="dropdown-item" href="#">Search engine</a></li>
+
+                <li><hr class="dropdown-divider"></li>
+
+                <li><a id="displayLight" class="dropdown-item" href="#">Light</a></li>
+                <li><a id="displayDark" class="dropdown-item" href="#">Dark</a></li>
+
+                <li><hr class="dropdown-divider"></li>
+
+                <li><a id="orderByVotes" class="dropdown-item" href="#">Order by Votes</a></li>
+                <li><a id="orderByDatePublished" class="dropdown-item" href="#">Order by Date published</a></li>
+            </ul>
+          </li>
+
+          <li class="nav-item">
+            <a id="helpButton" class="nav-link" href="#">?</a>
+          </li>
+        </ul>
+      </div>
+    </nav>
+    """
+
+    return text
+
+
 def get_html(id, body, title="", index=False):
     if not index:
         if not id:
             id = ""
-        body = '<a href="/?id={}">Back</a>'.format(id) + body
 
-    html = """<!DOCTYPE html>
+    reading_entries_text = ""
+    reading_sources_text = ""
+    if reading_entries:
+        reading_entries_text = f""" <div>Reading entries</div>"""
+    if reading_sources:
+        reading_sources_text = f""" <div>Reading sources</div>"""
+
+    navbar_text = get_navbar()
+
+    html = f"""<!DOCTYPE html>
     <html>
     <head>
         <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -70,18 +135,33 @@ def get_html(id, body, title="", index=False):
         <script src="https://cdn.jsdelivr.net/npm/jszip/dist/jszip.min.js"></script>
 
         <link rel="stylesheet" href="/static/css/styles.css_style-light.css?1753905798">
-        <script src="/static/library.js?=7"></script>
-        <script src="/static/entries_library.js?=7"></script>
+        <script src="/static/library.js?=9"></script>
+        <script src="/static/entries_library.js?=9"></script>
+        <script src="/static/listview.js?=9"></script>
 
-        <title>{}</title>
+        <title>{title}</title>
     </head>
     <body>
-    {}
+
+    {navbar_text}
+
+    <div id="searchSuggestions"></div>
+
+    {body}
+
+    <footer id="footer" class="text-center text-lg-start bg-body-tertiary text-muted fixed-bottom">
+      <div id="footerStatus" class="text-center p-1" style="display: block;">
+        Version:{__version__}
+        {reading_entries_text}
+        {reading_sources_text}
+      </div>
+      <div id="footerLine" class="text-center p-1" style="display: none;background-color: rgba(0, 0, 0, 0);">
+      </div>
+    </footer>
+
     </body>
     </html>
-    """.format(
-        title, body
-    )
+    """
 
     return html
 
@@ -95,7 +175,6 @@ def index():
     command_links = []
     command_links.append({"link" : "/entries", "name":"entries", "description":"Shows entries"})
     command_links.append({"link" : "/sources", "name":"sources", "description":"Shows sources"})
-    command_links.append({"link" : "/search", "name":"search", "description":"Search"})
 
     # fmt: on
     text = ""
@@ -113,11 +192,6 @@ def index():
     text += """ <h1>Info</h1> """
     text += f""" <div>Crawler server= {crawler_server}:{crawler_port}</div>"""
     text += f""" <div>DB= {file_name}</div>"""
-    if reading_entries:
-        text += f""" <div>Reading entries</div>"""
-    if reading_sources:
-        text += f""" <div>Reading sources</div>"""
-    text += f""" <div>Version= {__version__}</div>"""
 
     text += "</div>"
 
@@ -131,11 +205,12 @@ def entries():
     link = request.args.get("link") or ""
     source_id = request.args.get("source_id")
     page = request.args.get("page") or ""
+    search = request.args.get("searchInput") or ""
 
     index = 0
 
     entry_id = request.args.get("id")
-    link = f"/entries-json?link={link}&page={page}&source_id={source_id}"
+    link = f"/entries-json?link={link}&page={page}&source_id={source_id}&search={search}"
 
     text = """
     <div id="listData"></div>
@@ -188,6 +263,7 @@ def source_to_json(source):
 @app.route("/entries-json")
 def entries_json():
     link = request.args.get("link") or None
+    search = request.args.get("search") or None
     source_id = request.args.get("source_id")
     if source_id == "None":
         source_id = None
@@ -199,17 +275,25 @@ def entries_json():
     entries_json = []
 
     conditions = []
-    if link and source_id:
-        conditions.append(
-            or_(
-                EntriesTable.link.ilike("%{link}%"),
-                EntriesTable.source == source_id
-            )
-        )
-    elif link:
+    #if link and source_id:
+    #    conditions.append(
+    #        or_(
+    #            EntriesTable.link.ilike("%{link}%"),
+    #            EntriesTable.source == source_id
+    #        )
+    #    )
+    if link:
         conditions.append(EntriesTable.link.ilike(f"%{link}%"))
     elif source_id:
         conditions.append(EntriesTable.source==source_id)
+    elif search:
+        conditions.append(
+                or_(
+                    EntriesTable.title.ilike(f"%{search}%"),
+                    EntriesTable.description.ilike(f"%{search}%"),
+                    EntriesTable.link.ilike(f"%{search}%"),
+                )
+        )
 
     entries = client.get_entries(page=page, rows_per_page=entries_per_page, conditions=conditions, ascending=False)
     for entry in reversed(entries):
