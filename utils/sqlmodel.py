@@ -143,8 +143,14 @@ class EntriesTable(Base):
     permanent: Mapped[bool] = mapped_column(default=False)
     author: Mapped[Optional[str]]
     album: Mapped[Optional[str]]
+    source_url: Mapped[Optional[str]]
+    contents_type: Mapped[int] = mapped_column(default=0)
+    page_rating_contents: Mapped[int] = mapped_column(default=0)
+    page_rating_votes: Mapped[int] = mapped_column(default=0)
+    page_rating_visits: Mapped[int] = mapped_column(default=0)
+    page_rating: Mapped[int] = mapped_column(default=0)
     # advanced / foreign
-    source: Mapped[Optional[int]]
+    source_id: Mapped[Optional[int]]
 
 
 class EntriesTableController(object):

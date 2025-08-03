@@ -30,7 +30,7 @@ from rsshistory.webtools import (
 # increment major version digit for releases, or link name changes
 # increment minor version digit for JSON data changes
 # increment last digit for small changes
-__version__ = "4.0.32"
+__version__ = "4.1.0"
 
 
 file_name = "feedclient.db"
