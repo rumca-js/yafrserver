@@ -30,7 +30,7 @@ from rsshistory.webtools import (
 # increment major version digit for releases, or link name changes
 # increment minor version digit for JSON data changes
 # increment last digit for small changes
-__version__ = "4.0.31"
+__version__ = "4.0.32"
 
 
 file_name = "feedclient.db"
@@ -491,7 +491,7 @@ def background_refresh():
 
 def start_server():
     host = "0.0.0.0"
-    port=8000
+    port=8777
 
     if "YAFR_HOST" in os.environ:
         host = os.environ["YAFR_HOST"]
