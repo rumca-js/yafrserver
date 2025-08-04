@@ -19,6 +19,7 @@ from utils.sqlmodel import (
     EntriesTableController,
     SourcesTable,
 )
+from utils.alchemysearch import AlchemySearch
 from rsshistory.webtools import (
    WebConfig,
    RemoteServer,
@@ -30,7 +31,7 @@ from rsshistory.webtools import (
 # increment major version digit for releases, or link name changes
 # increment minor version digit for JSON data changes
 # increment last digit for small changes
-__version__ = "4.1.0"
+__version__ = "4.1.1"
 
 
 file_name = "feedclient.db"
@@ -135,9 +136,9 @@ def get_html(id, body, title="", index=False):
         <script src="https://cdn.jsdelivr.net/npm/jszip/dist/jszip.min.js"></script>
 
         <link rel="stylesheet" href="/static/css/styles.css_style-light.css?1753905798">
-        <script src="/static/library.js?=10"></script>
-        <script src="/static/entries_library.js?=10"></script>
-        <script src="/static/listview.js?=10"></script>
+        <script src="/static/library.js?=11"></script>
+        <script src="/static/entries_library.js?=11"></script>
+        <script src="/static/listview.js?=11"></script>
 
         <title>{title}</title>
     </head>
@@ -205,7 +206,7 @@ def entries():
     link = request.args.get("link") or ""
     source_id = request.args.get("source_id")
     page = request.args.get("page") or ""
-    search = request.args.get("searchInput") or ""
+    search = request.args.get("search") or ""
 
     index = 0
 
@@ -221,7 +222,6 @@ def entries():
         let show_pure_links = false;
         let highlight_bookmarks = false;
         let sort_function = "-date_published"; // page_rating_votes, date_published
-        let default_page_size = {};
 
        let loading_text = getSpinnerText();
        $('#listData').html(loading_text);
@@ -231,7 +231,7 @@ def entries():
           $('#listData').html(finished_text);
        }});
     </script>
-    """.format(entries_per_page, link)
+    """.format(link)
 
     return get_html(id=0, body=text, title="Entries")
 
@@ -274,28 +274,24 @@ def entries_json():
 
     entries_json = []
 
-    conditions = []
-    #if link and source_id:
+    #conditions = []
+    #if link:
+    #    conditions.append(EntriesTable.link.ilike(f"%{link}%"))
+    #elif source_id:
+    #    conditions.append(EntriesTable.source==source_id)
+    #elif search:
     #    conditions.append(
-    #        or_(
-    #            EntriesTable.link.ilike("%{link}%"),
-    #            EntriesTable.source == source_id
-    #        )
+    #            or_(
+    #                EntriesTable.title.ilike(f"%{search}%"),
+    #                EntriesTable.description.ilike(f"%{search}%"),
+    #                EntriesTable.link.ilike(f"%{search}%"),
+    #            )
     #    )
-    if link:
-        conditions.append(EntriesTable.link.ilike(f"%{link}%"))
-    elif source_id:
-        conditions.append(EntriesTable.source==source_id)
-    elif search:
-        conditions.append(
-                or_(
-                    EntriesTable.title.ilike(f"%{search}%"),
-                    EntriesTable.description.ilike(f"%{search}%"),
-                    EntriesTable.link.ilike(f"%{search}%"),
-                )
-        )
 
-    entries = client.get_entries(page=page, rows_per_page=entries_per_page, conditions=conditions, ascending=False)
+    search_engine = AlchemySearch(db=engine, page=page, rows_per_page=entries_per_page, search_term=search, ascending=False)
+    entries = search_engine.get_filtered_objects()
+
+    #entries = client.get_entries(page=page, rows_per_page=entries_per_page, conditions=conditions, ascending=False)
     for entry in reversed(entries):
         entry_json = entry_to_json(entry)
 
@@ -351,7 +347,6 @@ def entry():
         let show_pure_links = false;
         let highlight_bookmarks = false;
         let sort_function = "-date_published";
-        let default_page_size = {};
 
         let loading_text = getSpinnerText();
         $('#entryData').html(loading_text);
@@ -364,7 +359,7 @@ def entry():
         }});
         getDislikeData(1, entry_id={});
     </script>
-    """.format(entries_per_page, link, id)
+    """.format(link, id)
 
     return get_html(id=0, body=text, title="Entries")
 
@@ -479,7 +474,10 @@ def background_refresh():
         builder = SourceDataBuilder(conn=client.db)
         source["id"] = key
         print("Building {}".format(source["url"]))
-        builder.build(link_data = source)
+        try:
+            builder.build(link_data = source)
+        except Exception as E:
+            print(str(E))
     reading_sources = False
 
     while True:

@@ -1,10 +1,11 @@
 let search_suggestions = [];
+let default_page_size = 200;
 
 
 function getInitialSearchSuggestsions() {
-   return ["link=youtube.com/channel",
-        "link=github.com/",
-        "link=reddit.com/",
+   return ["link=*youtube.com/channel*",
+        "link=*github.com/*",
+        "link=*reddit.com/*",
    ];
 }
 
@@ -97,11 +98,26 @@ function fillDislike() {
 }
 
 
+function fillListData() {
+    const search_text = $("#searchInput").val();
+    let page_num = parseInt(getQueryParam("page")) || 1;
+    let page_size = default_page_size;
+
+    let link = `/entries-json?page=${page_num}&search=${search_text}`;
+
+    getDynamicJson(link, function(entries) {{
+       var finished_text = getEntriesList(entries);
+       $('#listData').html(finished_text);
+    }});
+}
+
+
 //-----------------------------------------------
 document.addEventListener('DOMContentLoaded', () => {
     console.log("Initializing")
     $("#searchSuggestions").html(getSearchSuggestionContainer());
 });
+
 
 //-----------------------------------------------
 $(document).on('click', '.suggestion-item', function(e) {
@@ -114,7 +130,7 @@ $(document).on('click', '.suggestion-item', function(e) {
 
     hideSearchSuggestions();
 
-    window.location.href = '/entries?search='+suggestion_item_value;
+    fillListData();
 });
 
 

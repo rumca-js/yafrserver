@@ -213,6 +213,8 @@ class SourcesTable(Base):
     source_type: Mapped[Optional[str]]
     category_name: Mapped[Optional[str]]
     subcategory_name: Mapped[Optional[str]]
+    auto_tag: Mapped[str] = mapped_column(String(1000), default="")
+    auto_update_favicon: Mapped[bool] = mapped_column(default=True)
 
 
 class SourcesTableController(object):
