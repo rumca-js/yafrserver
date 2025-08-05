@@ -45,11 +45,12 @@ if "CRAWLER_BUDDY_SERVER" in os.environ:
 crawler_port = "3000"
 if "CRAWLER_BUDDY_PORT" in os.environ:
     crawler_port = os.environ["CRAWLER_BUDDY_PORT"]
+crawler_location = f"http://{crawler_server}:{crawler_port}"
 
 engine = create_engine("sqlite:///{}".format(file_name))
 #model = SqlModel(engine=engine)
 
-client = FeedClient(engine=engine, server_location=f"http://{crawler_server}:{crawler_port}")
+client = FeedClient(engine=engine, server_location=crawler_location)
 
 app = Flask(__name__)
 
@@ -433,7 +434,7 @@ def entry_dislikes():
             {"errors": ["Entry does not exists"]}
         )
 
-    remote_server = RemoteServer(f"http://{crawler_server}:{crawler_port}")
+    remote_server = RemoteServer(crawler_location)
 
     json_obj = remote_server.get_socialj(entry.link)
     if not json_obj:
@@ -452,7 +453,7 @@ def entry_dislikes():
 
 
 def fetch(url):
-    request_server = RemoteServer(f"http://{crawler_server}:{crawler_port}")
+    request_server = RemoteServer(crawler_location)
 
     all_properties = request_server.get_getj(url, name="RequestsCrawler")
     return all_properties
@@ -480,11 +481,14 @@ def background_refresh():
             print(str(E))
     reading_sources = False
 
+    remote_server = RemoteServer(crawler_location)
+    
     while True:
-        reading_entries = True
-        client.refresh()
-        reading_entries = False
-        time.sleep(60*10) # every 10 minutes
+        if remote_server.is_ok():
+            reading_entries = True
+            client.refresh()
+            reading_entries = False
+            time.sleep(60*10) # every 10 minutes
 
 
 def start_server():
