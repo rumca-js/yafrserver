@@ -2,6 +2,14 @@ let search_suggestions = [];
 let default_page_size = 200;
 let user_age = 0;
 
+let view_display_type = "standard";
+let view_show_icons = true;
+let view_small_icons = false;
+let show_pure_links = false;
+let highlight_bookmarks = false;
+let sort_function = "-date_published"; // page_rating_votes, date_published
+
+
 
 function getInitialSearchSuggestsions() {
    return ["link=*youtube.com/channel*",
@@ -32,6 +40,14 @@ function getSearchSuggestionContainer() {
         </div>
     `;
     return html;
+}
+
+
+function getPaginationText(rows, page_size) {
+    let page_num = parseInt(getQueryParam("page")) || 1;
+    let countElements = rows.length;
+
+    return GetPaginationNavSimple(page_num);
 }
 
 
@@ -107,10 +123,40 @@ function performSearch() {
     let link = `/entries-json?page=${page_num}&search=${search_text}`;
 
     getDynamicJson(link, function(entries) {{
-       var finished_text = getEntriesList(entries);
-       $('#listData').html(finished_text);
+        var finished_text = getEntriesList(entries);
+        let pagination_text = getPaginationText(entries, 200);
+        $('#listData').html(finished_text);
+        $('#pagination').html(pagination_text);
     }});
 }
+
+
+//-----------------------------------------------
+$(document).on('click', '.btnNavigation', function(e) {
+    e.preventDefault();
+
+    const currentPage = $(this).data('page');
+
+    const currentUrl = new URL(window.location.href);
+    currentUrl.searchParams.set('page', currentPage);
+    window.history.pushState({}, '', currentUrl);
+
+    animateToTop();
+
+    performSearch();
+});
+
+
+//-----------------------------------------------
+$(document).on('keydown', "#searchInput", function(e) {
+    if (e.key === "Enter") {
+        e.preventDefault();
+
+        hideSearchSuggestions();
+
+        performSearch();
+    }
+});
 
 
 //-----------------------------------------------

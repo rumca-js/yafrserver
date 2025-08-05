@@ -34,7 +34,7 @@ from rsshistory.webtools.feedclient import FeedClient
 # increment major version digit for releases, or link name changes
 # increment minor version digit for JSON data changes
 # increment last digit for small changes
-__version__ = "4.1.9"
+__version__ = "4.1.10"
 
 
 file_name = "feedclient.db"
@@ -147,7 +147,7 @@ def get_html(id, body, title="", index=False):
 
         <title>{title}</title>
     </head>
-    <body>
+    <body style="padding-bottom: 6em;">
 
     {navbar_text}
 
@@ -219,21 +219,17 @@ def entries():
     link = f"/entries-json?link={link}&page={page}&source_id={source_id}&search={search}"
 
     text = """
-    <div id="listData"></div>
+    <div id="listData" class="container"></div>
+    <div id="pagination" class="container"></div>
     <script>
-        let view_display_type = "standard";
-        let view_show_icons = true;
-        let view_small_icons = false;
-        let show_pure_links = false;
-        let highlight_bookmarks = false;
-        let sort_function = "-date_published"; // page_rating_votes, date_published
-
        let loading_text = getSpinnerText();
        $('#listData').html(loading_text);
 
        getDynamicJson("{}", function(entries) {{
-          var finished_text = getEntriesList(entries);
+          let finished_text = getEntriesList(entries);
+          let pagination_text = getPaginationText(entries, 200);
           $('#listData').html(finished_text);
+          $('#pagination').html(pagination_text);
        }});
     </script>
     """.format(link)
@@ -307,13 +303,6 @@ def entry():
     </div>
 
     <script>
-        let view_display_type = "standard";
-        let view_show_icons = true;
-        let view_small_icons = false;
-        let show_pure_links = false;
-        let highlight_bookmarks = false;
-        let sort_function = "-date_published";
-
         let loading_text = getSpinnerText();
         $('#entryData').html(loading_text);
 
@@ -343,21 +332,18 @@ def sources():
     link = f"/sources-json?page={page}&search={search}"
 
     text = """
-    <div id="listData"></div>
+    <div id="listData" class="container"></div>
+    <div id="pagination" class="container"></div>
     <script>
-        let view_display_type = "standard";
-        let view_show_icons = true;
-        let view_small_icons = false;
-        let show_pure_links = false;
-        let highlight_bookmarks = false;
-        let sort_function = "-date_published"; // page_rating_votes, date_published
-
        let loading_text = getSpinnerText();
        $('#listData').html(loading_text);
+       $('#pagination').html(loading_text);
 
        getDynamicJson("{}", function(sources) {{
-          var finished_text = getSourcesList(sources);
+          let finished_text = getSourcesList(sources);
+          let pagination_text = getPaginationText(sources, 200);
           $('#listData').html(finished_text);
+          $('#pagination').html(pagination_text);
        }});
     </script>
     """.format(link)

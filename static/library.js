@@ -67,6 +67,11 @@ function getSpinnerText(text = 'Loading...') {
 }
 
 
+function animateToTop() {
+    $('html, body').animate({ scrollTop: 0 }, 'slow');
+}
+
+
 function putSpinnerOnIt(button) {
     button.prop("disabled", true);
 
@@ -138,6 +143,47 @@ function GetPaginationNav(currentPage, totalPages, totalRows) {
     paginationText += `
             </ul>
             ${currentPage} / ${totalPages} @ ${totalRows} records.
+        </nav>
+    `;
+
+    return paginationText;
+}
+
+
+function GetPaginationNavSimple(currentPage) {
+    let paginationText = `
+        <nav aria-label="Page navigation">
+            <ul class="pagination">
+    `;
+
+    const currentUrl = new URL(window.location);
+    currentUrl.searchParams.delete('page');
+    const paginationArgs = `${currentUrl.searchParams.toString()}`;
+
+    if (currentPage > 1) {
+        paginationText += `
+            <li class="page-item">
+                <a href="?page=1&${paginationArgs}" data-page="1" class="btnNavigation page-link">|&lt;</a>
+            </li>
+        `;
+    }
+    if (currentPage > 1) {
+        paginationText += `
+            <li class="page-item">
+                <a href="?page=${currentPage - 1}&${paginationArgs}" data-page="${currentPage - 1}" class="btnNavigation page-link">&lt;</a>
+            </li>
+        `;
+    }
+
+    paginationText += `
+        <li class="page-item">
+            <a href="?page=${currentPage + 1}&${paginationArgs}" data-page="${currentPage + 1}" class="btnNavigation page-link">&gt;</a>
+        </li>
+    `;
+
+    paginationText += `
+            </ul>
+            Page: ${currentPage}
         </nav>
     `;
 
