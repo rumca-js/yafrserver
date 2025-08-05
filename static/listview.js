@@ -1,5 +1,6 @@
 let search_suggestions = [];
 let default_page_size = 200;
+let user_age = 0;
 
 
 function getInitialSearchSuggestsions() {

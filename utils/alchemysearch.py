@@ -137,6 +137,7 @@ class AlchemySearch(object):
 
     def get_filtered_objects(self):
         combined_query_conditions = self.get_query_conditions()
+        print(combined_query_conditions)
 
         rows = []
         with self.db.connect() as connection:
@@ -156,8 +157,13 @@ class AlchemySearch(object):
             else:
                 order_by_clause = order_by_column.asc()
 
-            # Use select() for SQLAlchemy Core
-            stmt = select(self.destination_table).where(combined_query_conditions).order_by(order_by_clause)
+            if combined_query_conditions:
+                stmt = select(self.destination_table).where(combined_query_conditions)
+            else:
+                stmt = select(self.destination_table)
+
+            stmt = stmt.order_by(order_by_clause)
+            print(stmt)
 
             if self.rows_per_page and self.page:
                 offset = (self.page - 1) * self.rows_per_page

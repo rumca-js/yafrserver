@@ -117,7 +117,7 @@ def entry_to_json(entry, user_config=None, tags=False):
     if user_inappropate:
         json_entry["title_safe"] = "Not appropriate"
     else:
-        json_entry["title_safe"] = entry.get_title_safe()
+        json_entry["title_safe"] = entry.title    # TODO entry.get_title_safe()
 
     if user_inappropate:
         json_entry["description"] = "Not appropriate"
@@ -127,10 +127,10 @@ def entry_to_json(entry, user_config=None, tags=False):
     if user_inappropate:
         json_entry["description_safe"] = "Not appropriate"
     else:
-        json_entry["description_safe"] = entry.get_description_safe()
+        json_entry["description_safe"] = entry.description # TODO entry.get_description_safe()
     json_entry["link"] = entry.link
-    json_entry["link_absolute"] = entry.get_absolute_url()
-    json_entry["is_valid"] = entry.is_valid()
+    json_entry["link_absolute"] = entry.link   # TODO entry.get_absolute_url()
+    json_entry["is_valid"] = True    # TODO entry.is_valid()
     json_entry["date_created"] = entry.date_created
     json_entry["date_published"] = entry.date_published
     json_entry["date_dead_since"] = entry.date_dead_since

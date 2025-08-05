@@ -32,7 +32,7 @@ from rsshistory.webtools.feedclient import FeedClient
 # increment major version digit for releases, or link name changes
 # increment minor version digit for JSON data changes
 # increment last digit for small changes
-__version__ = "4.1.6"
+__version__ = "4.1.7"
 
 
 file_name = "feedclient.db"
@@ -276,24 +276,9 @@ def entries_json():
 
     entries_json = []
 
-    #conditions = []
-    #if link:
-    #    conditions.append(EntriesTable.link.ilike(f"%{link}%"))
-    #elif source_id:
-    #    conditions.append(EntriesTable.source==source_id)
-    #elif search:
-    #    conditions.append(
-    #            or_(
-    #                EntriesTable.title.ilike(f"%{search}%"),
-    #                EntriesTable.description.ilike(f"%{search}%"),
-    #                EntriesTable.link.ilike(f"%{search}%"),
-    #            )
-    #    )
-
     search_engine = AlchemySearch(db=engine, page=page, rows_per_page=entries_per_page, search_term=search, ascending=False)
     entries = search_engine.get_filtered_objects()
 
-    #entries = client.get_entries(page=page, rows_per_page=entries_per_page, conditions=conditions, ascending=False)
     for entry in reversed(entries):
         entry_json = entry_to_json(entry)
 
