@@ -157,10 +157,10 @@ class AlchemySearch(object):
             else:
                 order_by_clause = order_by_column.asc()
 
-            if combined_query_conditions:
-                stmt = select(self.destination_table).where(combined_query_conditions)
-            else:
+            if combined_query_conditions is None:
                 stmt = select(self.destination_table)
+            else:
+                stmt = select(self.destination_table).where(combined_query_conditions)
 
             stmt = stmt.order_by(order_by_clause)
             print(stmt)

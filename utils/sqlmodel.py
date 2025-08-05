@@ -396,6 +396,102 @@ class ReadMarkers(Base):
                 session.commit()
 
 
+class ConfigurationEntry(Base):
+    __tablename__ = "configurationentry"
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
+    instance_title: Mapped[str] = mapped_column(String(500))
+    instance_description: Mapped[str] = mapped_column(String(500))
+    instance_internet_location: Mapped[Optional[str]] = mapped_column(String(200))
+    favicon_internet_url: Mapped[Optional[str]] = mapped_column(String(200))
+    admin_user: Mapped[Optional[str]] = mapped_column(String(500))
+    view_access_type: Mapped[Optional[str]] = mapped_column(String(100))
+    download_access_type: Mapped[Optional[str]] = mapped_column(String(100))
+    add_access_type: Mapped[Optional[str]] = mapped_column(String(100))
+    logging_level: Mapped[int] = mapped_column(default=0)
+    initialized: Mapped[bool] = mapped_column(default=False)
+    initialization_type: Mapped[Optional[str]] = mapped_column(String(100))
+    enable_background_jobs: Mapped[bool] = mapped_column(default=True)
+    block_job_queue: Mapped[bool] = mapped_column(default=False)
+    use_internal_scripts: Mapped[bool] = mapped_column(default=False)
+    data_import_path: Mapped[Optional[str]] = mapped_column(String(2000))
+    data_export_path: Mapped[Optional[str]] = mapped_column(String(2000))
+    download_path: Mapped[Optional[str]] = mapped_column(String(2000))
+    auto_store_thumbnails: Mapped[bool] = mapped_column(default=False)
+    thread_memory_threshold: Mapped[int] = mapped_column(default=0)
+    enable_keyword_support: Mapped[bool] = mapped_column(default=False)
+    enable_domain_support: Mapped[bool] = mapped_column(default=False)
+    enable_file_support: Mapped[bool] = mapped_column(default=False)
+    enable_link_archiving: Mapped[bool] = mapped_column(default=False)
+    enable_source_archiving: Mapped[bool] = mapped_column(default=False)
+
+    accept_dead_links: Mapped[bool] = mapped_column(default=False)
+    accept_ip_links: Mapped[bool] = mapped_column(default=False)
+    accept_domain_links: Mapped[bool] = mapped_column(default=False)
+    accept_non_domain_links: Mapped[bool] = mapped_column(default=False)
+    auto_scan_new_entries: Mapped[bool] = mapped_column(default=False)
+    new_entries_merge_data: Mapped[bool] = mapped_column(default=False)
+    new_entries_use_clean_data: Mapped[bool] = mapped_column(default=False)
+    entry_update_via_internet: Mapped[bool] = mapped_column(default=False)
+    log_remove_entries: Mapped[bool] = mapped_column(default=False)
+    auto_create_sources: Mapped[bool] = mapped_column(default=False)
+    default_source_state: Mapped[bool] = mapped_column(default=False)
+    prefer_https_links: Mapped[bool] = mapped_column(default=False)
+    prefer_https_links: Mapped[bool] = mapped_column(default=False)
+    prefer_non_www_links: Mapped[bool] = mapped_column(default=False)
+
+    sources_refresh_period: Mapped[int] = mapped_column(default=0)
+    days_to_move_to_archive: Mapped[int] = mapped_column(default=0)
+    days_to_remove_links: Mapped[int] = mapped_column(default=0)
+    days_to_remove_stale_entries: Mapped[int] = mapped_column(default=0)
+    days_to_check_std_entries: Mapped[int] = mapped_column(default=0)
+    days_to_check_stale_entries: Mapped[int] = mapped_column(default=0)
+    remove_entry_vote_threshold: Mapped[int] = mapped_column(default=1)
+    number_of_update_entries: Mapped[int] = mapped_column(default=1)
+
+    remote_webtools_server_location: Mapped[Optional[str]] = mapped_column(default="")
+    internet_status_test_url: Mapped[Optional[str]] = mapped_column(default="https://google.com")
+
+    track_user_actions: Mapped[bool] = mapped_column(default=False)
+    track_user_searches: Mapped[bool] = mapped_column(default=False)
+    track_user_navigation: Mapped[bool] = mapped_column(default=False)
+    max_user_entry_visit_history: Mapped[int] = mapped_column(default=1)
+    max_number_of_user_search: Mapped[int] = mapped_column(default=1)
+    vote_min: Mapped[int] = mapped_column(default=-100)
+    vote_max: Mapped[int] = mapped_column(default=-100)
+    number_of_comments_per_day: Mapped[int] = mapped_column(default=-100)
+
+    time_zone: Mapped[int] = mapped_column(default=-100)
+    display_style: Mapped[int] = mapped_column(default=-100)
+    display_type: Mapped[int] = mapped_column(default=-100)
+    show_icons: Mapped[bool] = mapped_column(default=False)
+    thumbnails_as_icons: Mapped[bool] = mapped_column(default=False)
+    small_icons: Mapped[bool] = mapped_column(default=False)
+    local_icons: Mapped[bool] = mapped_column(default=False)
+    links_per_page: Mapped[int] = mapped_column(default=-100)
+    sources_per_page: Mapped[int] = mapped_column(default=-100)
+    max_links_per_page: Mapped[int] = mapped_column(default=-100)
+    max_sources_per_page: Mapped[int] = mapped_column(default=-100)
+    max_number_of_related_links: Mapped[int] = mapped_column(default=-100)
+    debug_mode: Mapped[bool] = mapped_column(default=False)
+
+
+class ConfigurationEntryController(object):
+    def __init__(self, db, session=None):
+        self.conn = db
+        self.session = session
+
+    def get_session(self):
+        if not self.session:
+            return self.conn.get_session()
+        else:
+            return self.session
+
+    def get(self):
+        Session = self.get_session()
+        with Session() as session:
+            return session.query(ConfigurationEntry).first()
+
+
 class SqlModel(object):
     def __init__(self, database_file="test.db", parser=None, engine=None):
         self.db_file = database_file

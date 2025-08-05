@@ -18,6 +18,7 @@ from utils.sqlmodel import (
     EntriesTable,
     EntriesTableController,
     SourcesTable,
+    ConfigurationEntryController,
 )
 from utils.alchemysearch import AlchemySearch
 from utils.controllers.entries import entry_to_json
@@ -32,7 +33,7 @@ from rsshistory.webtools.feedclient import FeedClient
 # increment major version digit for releases, or link name changes
 # increment minor version digit for JSON data changes
 # increment last digit for small changes
-__version__ = "4.1.7"
+__version__ = "4.1.8"
 
 
 file_name = "feedclient.db"
@@ -496,6 +497,8 @@ def start_server():
 
 def main():
     WebConfig.init()
+    config = ConfigurationEntryController(db=client.db).get()
+    print(config.instance_title)
 
     # Start refresh in a daemon thread
     refresh_thread = threading.Thread(target=background_refresh, daemon=True)

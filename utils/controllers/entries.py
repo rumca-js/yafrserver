@@ -143,6 +143,7 @@ def entry_to_json(entry, user_config=None, tags=False):
     json_entry["page_rating_contents"] = entry.page_rating_contents
     json_entry["page_rating_votes"] = entry.page_rating_votes
     json_entry["age"] = entry.age
+    json_entry["status_code"] = entry.status_code
 
     json_entry["source__title"] = ""
     json_entry["source__url"] = ""
@@ -157,9 +158,11 @@ def entry_to_json(entry, user_config=None, tags=False):
             json_entry["thumbnail"] = None
         else:
             if user_config.thumbnails_as_icons:
-                json_entry["thumbnail"] = entry.get_thumbnail()
+                json_entry["thumbnail"] = entry.thumbnail # TODO entry.get_thumbnail()
             else:
-                json_entry["thumbnail"] = entry.get_favicon()
+                json_entry["thumbnail"] = entry.thumbnail # TODO entry.get_favicon()
+    else:
+        json_entry["thumbnail"] = entry.thumbnail
 
     if hasattr(entry, "tags"):
         tags = set()
