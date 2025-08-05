@@ -31,7 +31,7 @@ from rsshistory.webtools import (
 # increment major version digit for releases, or link name changes
 # increment minor version digit for JSON data changes
 # increment last digit for small changes
-__version__ = "4.1.2"
+__version__ = "4.1.3"
 
 
 file_name = "feedclient.db"
@@ -469,6 +469,8 @@ def background_refresh():
     from utils.controllers.sources import SourceDataBuilder
     global reading_sources, reading_entries, client
 
+    print("-----Reading sources-----")
+
     news_sources = read_sources("init_sources_news.json")
     reading_sources = True
     for key, source in enumerate(news_sources):
@@ -482,13 +484,15 @@ def background_refresh():
     reading_sources = False
 
     remote_server = RemoteServer(crawler_location)
+    print("-----Starting operation-----")
     
     while True:
         if remote_server.is_ok():
             reading_entries = True
             client.refresh()
             reading_entries = False
-            time.sleep(60*10) # every 10 minutes
+
+        time.sleep(60*10) # every 10 minutes
 
 
 def start_server():
