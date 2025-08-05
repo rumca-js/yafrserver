@@ -98,7 +98,7 @@ function fillDislike() {
 }
 
 
-function fillListData() {
+function performSearch() {
     const search_text = $("#searchInput").val();
     let page_num = parseInt(getQueryParam("page")) || 1;
     let page_size = default_page_size;
@@ -130,7 +130,7 @@ $(document).on('click', '.suggestion-item', function(e) {
 
     hideSearchSuggestions();
 
-    fillListData();
+    performSearch();
 });
 
 
