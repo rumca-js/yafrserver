@@ -13,6 +13,19 @@ class RemoteServer(object):
         self.remote_server = remote_server
         self.timeout_s = timeout_s
 
+    def is_ok(self):
+        try:
+            response = requests.get(
+                self.remote_server,
+                timeout=20,
+                verify=False,
+                stream=False,
+            )
+            response.raise_for_status()  # raise an error for bad HTTP status codes
+        except requests.RequestException as e:
+            print(f"Crawler HTTP request failed: {e}")
+            return False
+
     def get_socialj(self, url, settings=None):
         """
         @returns None in case of error
