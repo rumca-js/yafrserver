@@ -20,6 +20,7 @@ from utils.sqlmodel import (
     SourcesTable,
 )
 from utils.alchemysearch import AlchemySearch
+from utils.controllers.entries import entry_to_json
 from rsshistory.webtools import (
    WebConfig,
    RemoteServer,
@@ -31,7 +32,7 @@ from rsshistory.webtools import (
 # increment major version digit for releases, or link name changes
 # increment minor version digit for JSON data changes
 # increment last digit for small changes
-__version__ = "4.1.4"
+__version__ = "4.1.5"
 
 
 file_name = "feedclient.db"
@@ -237,21 +238,21 @@ def entries():
     return get_html(id=0, body=text, title="Entries")
 
 
-def entry_to_json(entry):
-    json = {}
-    json["id"] = entry.id
-    json["title"] = entry.title
-    json["description"] = entry.description
-    json["link"] = entry.link
-    json["date_published"] = str(entry.date_published)
-    json["status_code"] = entry.status_code
-    json["thumbnail"] = entry.thumbnail
-    json["language"] = entry.language
-    json["permanent"] = entry.permanent
-    json["author"] = entry.author
-    json["album"] = entry.album
-
-    return json
+#def entry_to_json(entry):
+#    json = {}
+#    json["id"] = entry.id
+#    json["title"] = entry.title
+#    json["description"] = entry.description
+#    json["link"] = entry.link
+#    json["date_published"] = str(entry.date_published)
+#    json["status_code"] = entry.status_code
+#    json["thumbnail"] = entry.thumbnail
+#    json["language"] = entry.language
+#    json["permanent"] = entry.permanent
+#    json["author"] = entry.author
+#    json["album"] = entry.album
+#
+#    return json
 
 def source_to_json(source):
     json = {}
