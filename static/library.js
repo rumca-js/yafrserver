@@ -37,7 +37,7 @@ class UrlLocation {
   }
 
   getProtocolless() {
-    return this.url.href.replace(`${this.url.protocol}//`, '');
+    return sanitizeLink(this.url.href.replace(`${this.url.protocol}//`, ''));
   }
 }
 
@@ -78,10 +78,8 @@ function putSpinnerOnIt(button) {
 }
 
 
-function GetPaginationNav(data) {
-    let totalPages = data.num_pages;
-    let totalRows = data.count;
-    let currentPage = data.page;
+function GetPaginationNav(currentPage, totalPages, totalRows) {
+    totalPages = Math.ceil(totalPages);
 
     if (totalPages <= 1) {
         return '';
@@ -278,7 +276,7 @@ function fixStupidGoogleRedirects(input_url) {
 }
 
 
-function sanitizeLink(link) {
+function sanitizeLinkGeneral(link) {
    link = link.trimStart();
 
    if (link.endsWith("/")) {
@@ -288,7 +286,14 @@ function sanitizeLink(link) {
       link = link.slice(0, -1);
    }
 
+   return link;
+}
+
+
+function sanitizeLink(link) {
+   link = sanitizeLinkGeneral(link);
    link = fixStupidGoogleRedirects(link);
+   link = sanitizeLinkGeneral(link);
 
    return link;
 }
@@ -376,8 +381,8 @@ function getChannelUrl(url) {
 
 
 function getOdyseeVideoId(url) {
-    const url = new URL(url);
-    const videoId = url.pathname.split('/').pop();
+    const url_object = new URL(url);
+    const videoId = url_object.pathname.split('/').pop();
     return videoId;
 }
 

@@ -25,9 +25,9 @@ function getSearchSuggestionContainer() {
 
     let html = `
         <div id="search-suggestions" class="mt-2" style="display:none;">
-    	<ul class="list-group" id="suggestion-list">
-    	   ${listItems}
-    	</ul>
+            <ul class="list-group" id="suggestion-list">
+               ${listItems}
+            </ul>
         </div>
     `;
     return html;

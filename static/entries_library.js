@@ -225,7 +225,7 @@ function getEntryParameters(entry) {
 
    let date_published = getEntryDatePublished(entry);
 
-   html_out += `<div class="text-nowrap d-flex flex-wrap"" id="entryParameters"><strong>Publish date:</strong> ${date_published}</div>`;
+   html_out += `<div class="text-nowrap d-flex flex-wrap" id="entryParameters"><strong>Publish date:</strong> ${date_published}</div>`;
 
    html_out += getEntryBookmarkBadge(entry);
    html_out += getEntryVotesBadge(entry);
@@ -533,7 +533,7 @@ function getEntryFullTextOdysee(entry) {
 function getEntryDetailText(entry) {
     let text = "";
 
-    const protocol_less = new UrlLocation(url_string).getProtocolless();
+    const protocol_less = new UrlLocation(entry.link).getProtocolless();
 
     if (protocol_less.startsWith("www.youtube.com/watch"))
         text = getEntryFullTextYouTube(entry);
@@ -1031,5 +1031,15 @@ module.exports = {
     getEntryTags,
     getEntryListText,
     isStatusCodeValid,
+    getEntryAuthorText,
+    getEntryVotesBadge,
+    getEntryBookmarkBadge,
+    getEntryAgeBadge,
+    getEntryDeadBadge,
+    getEntryParameters,
+    getEntryDetailText,
+    getEntryFullTextStandard,
+    getEntryFullTextYouTube,
+    getEntryFullTextOdysee,
 };
 */
