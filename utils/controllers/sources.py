@@ -78,3 +78,25 @@ class SourceDataBuilder(object):
         """
         self.build(link_data=link_data)
         print("import test")
+
+
+def source_to_json(source, user_config=None):
+    json_source = {}
+
+    json_source["url_absolute"] = source.url
+    json_source["url"] = source.url
+    json_source["enabled"] = source.enabled
+    json_source["source_type"] = source.source_type
+    json_source["title"] = source.title
+    json_source["category_name"] = source.category_name
+    json_source["subcategory_name"] = source.subcategory_name
+    json_source["export_to_cms"] = source.export_to_cms
+    json_source["remove_after_days"] = source.remove_after_days
+    json_source["language"] = source.language
+    json_source["age"] = source.age
+    json_source["favicon"] = source.favicon
+    json_source["fetch_period"] = source.fetch_period
+    json_source["auto_tag"] = source.auto_tag
+    json_source["errors"] = 0
+
+    return json_source

@@ -22,6 +22,7 @@ from utils.sqlmodel import (
 )
 from utils.alchemysearch import AlchemySearch
 from utils.controllers.entries import entry_to_json
+from utils.controllers.sources import source_to_json
 from rsshistory.webtools import (
    WebConfig,
    RemoteServer,
@@ -33,7 +34,7 @@ from rsshistory.webtools.feedclient import FeedClient
 # increment major version digit for releases, or link name changes
 # increment minor version digit for JSON data changes
 # increment last digit for small changes
-__version__ = "4.1.8"
+__version__ = "4.1.9"
 
 
 file_name = "feedclient.db"
@@ -141,6 +142,7 @@ def get_html(id, body, title="", index=False):
         <link rel="stylesheet" href="/static/css/styles.css_style-light.css?1753905798">
         <script src="/static/library.js?=11"></script>
         <script src="/static/entries_library.js?=11"></script>
+        <script src="/static/sources_library.js?=11"></script>
         <script src="/static/listview.js?=11"></script>
 
         <title>{title}</title>
@@ -239,30 +241,6 @@ def entries():
     return get_html(id=0, body=text, title="Entries")
 
 
-#def entry_to_json(entry):
-#    json = {}
-#    json["id"] = entry.id
-#    json["title"] = entry.title
-#    json["description"] = entry.description
-#    json["link"] = entry.link
-#    json["date_published"] = str(entry.date_published)
-#    json["status_code"] = entry.status_code
-#    json["thumbnail"] = entry.thumbnail
-#    json["language"] = entry.language
-#    json["permanent"] = entry.permanent
-#    json["author"] = entry.author
-#    json["album"] = entry.album
-#
-#    return json
-
-def source_to_json(source):
-    json = {}
-    json["title"] = source.title
-    json["url"] = source.url
-
-    return json
-
-
 @app.route("/entries-json")
 def entries_json():
     link = request.args.get("link") or None
@@ -356,27 +334,54 @@ def entry():
 def sources():
     text = ""
 
+    page = request.args.get("page") or ""
+    search = request.args.get("search") or ""
+
+    index = 0
+
+    entry_id = request.args.get("id")
+    link = f"/sources-json?page={page}&search={search}"
+
+    text = """
+    <div id="listData"></div>
+    <script>
+        let view_display_type = "standard";
+        let view_show_icons = true;
+        let view_small_icons = false;
+        let show_pure_links = false;
+        let highlight_bookmarks = false;
+        let sort_function = "-date_published"; // page_rating_votes, date_published
+
+       let loading_text = getSpinnerText();
+       $('#listData').html(loading_text);
+
+       getDynamicJson("{}", function(sources) {{
+          var finished_text = getSourcesList(sources);
+          $('#listData').html(finished_text);
+       }});
+    </script>
+    """.format(link)
+
+    return get_html(id=0, body=text, title="Entries")
+
+
+@app.route("/sources-json")
+def sources_json():
+    text = ""
+
     link = request.args.get("link")
     page = request.args.get("page") or 1
     page=int(page)
 
+    sources_json = []
+
     sources = client.get_sources(page=page, rows_per_page=entries_per_page)
+    sources_size = len(sources)
     for source in sources:
-        link = f"/source?page={page}&source_id={source.id}"
+        source_json = source_to_json(source)
+        sources_json.append(source_json)
 
-        text += """
-        <div class="container">
-            <a href="{}" style="display: flex; align-items: center; gap: 10px; text-decoration: none; color: inherit; margin-bottom: 10px;">
-                <img src="{}" width="100px" style="flex-shrink: 0;"/>
-                <div>
-                    <div>{}</div>
-                    <div>{}</div>
-                </div>
-            </a>
-        </div>
-            """.format(link, source.favicon, source.url, source.title)
-
-    return get_html(id=0, body=text, title="Sources")
+    return jsonify(sources_json)
 
 
 @app.route("/source")
