@@ -24,15 +24,15 @@ from utils.controllers.entries import entry_to_json
 from rsshistory.webtools import (
    WebConfig,
    RemoteServer,
-   FeedClient,
    Url,
 )
+from rsshistory.webtools.feedclient import FeedClient
 
 
 # increment major version digit for releases, or link name changes
 # increment minor version digit for JSON data changes
 # increment last digit for small changes
-__version__ = "4.1.5"
+__version__ = "4.1.6"
 
 
 file_name = "feedclient.db"
