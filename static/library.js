@@ -27,6 +27,21 @@ function escapeHtml(unsafe)
 }
 
 
+class UrlLocation {
+  constructor(urlString) {
+    try {
+      this.url = new URL(urlString);
+    } catch (e) {
+      throw new Error("Invalid URL");
+    }
+  }
+
+  getProtocolless() {
+    return this.url.href.replace(`${this.url.protocol}//`, '');
+  }
+}
+
+
 function createLinks(inputText) {
     const urlRegex = /(?<!<a[^>]*>)(https:\/\/[a-zA-Z0-9-_\.\/]+)(?!<\/a>)/g;
     const urlRegex2 = /(?<!<a[^>]*>)(http:\/\/[a-zA-Z0-9-_\.\/]+)(?!<\/a>)/g;
@@ -357,6 +372,13 @@ function getChannelUrl(url) {
     channelid = getYouTubeChannelUrl(url);
     if (channelid)
         return channelid;
+}
+
+
+function getOdyseeVideoId(url) {
+    const url = new URL(url);
+    const videoId = url.pathname.split('/').pop();
+    return videoId;
 }
 
 

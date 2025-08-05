@@ -486,8 +486,7 @@ function getEntryFullTextStandard(entry) {
 
 
 function getEntryFullTextYouTube(entry) {
-    const urlParams = new URL(entry.link).searchParams;
-    const videoId = urlParams.get("v");
+    const videoId = getYouTubeVideoId(entry.link);
 
     const embedUrl = videoId ? `https://www.youtube.com/embed/${videoId}` : "";
 
@@ -510,8 +509,7 @@ function getEntryFullTextYouTube(entry) {
 
 
 function getEntryFullTextOdysee(entry) {
-    const url = new URL(entry.link);
-    const videoId = url.pathname.split('/').pop();
+    const videoId = getOdyseeVideoId(entry.link);
 
     const embedUrl = videoId ? `https://odysee.com/$/embed/${videoId}` : "";
 
@@ -535,9 +533,15 @@ function getEntryFullTextOdysee(entry) {
 function getEntryDetailText(entry) {
     let text = "";
 
-    if (entry.link.startsWith("https://www.youtube.com/watch?v="))
+    const protocol_less = new UrlLocation(url_string).getProtocolless();
+
+    if (protocol_less.startsWith("www.youtube.com/watch"))
         text = getEntryFullTextYouTube(entry);
-    else if (entry.link.startsWith("https://odysee.com/"))
+    else if (protocol_less.startsWith("youtube.com/watch"))
+        text = getEntryFullTextYouTube(entry);
+    else if (protocol_less.startsWith("m.youtube.com/watch"))
+        text = getEntryFullTextYouTube(entry);
+    else if (protocol_less.startsWith("odysee.com/"))
         text = getEntryFullTextOdysee(entry);
     else
         text = getEntryFullTextStandard(entry);
