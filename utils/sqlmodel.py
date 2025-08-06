@@ -153,47 +153,6 @@ class EntriesTable(Base):
     source_id: Mapped[Optional[int]]
 
 
-class EntriesTableController(object):
-    def __init__(self, db, session=None):
-        self.conn = db
-        self.session = session
-
-    def get_session(self):
-        if not self.session:
-            return self.conn.get_session()
-        else:
-            return self.session
-
-    def remove(self, days):
-        now = datetime.now(timezone.utc)
-        limit = now - timedelta(days=days)
-
-        Session = self.get_session()
-
-        with Session() as session:
-            entries = session.query
-
-            query = delete(EntriesTable).where(
-                EntriesTable.date_published < limit, EntriesTable.bookmarked == False
-            )
-            session.execute(query)
-            session.commit()
-
-    def add_entry(self, entry):
-        # Get the set of column names from EntriesTable
-        valid_columns = {column.name for column in EntriesTable.__table__.columns}
-
-        # Remove keys that are not in EntriesTable
-        entry = {key: value for key, value in entry.items() if key in valid_columns}
-
-        entry_obj = EntriesTable(**entry)
-
-        Session = self.get_session()
-        with Session() as session:
-            session.add(entry_obj)
-            session.commit()
-
-
 class SourcesTable(Base):
     __tablename__ = "sourcedatamodel"
 
@@ -217,62 +176,6 @@ class SourcesTable(Base):
     auto_update_favicon: Mapped[bool] = mapped_column(default=True)
 
 
-class SourcesTableController(object):
-    def __init__(self, db, session=None):
-        self.conn = db
-        self.session = session
-
-    def get_session(self):
-        if not self.session:
-            return self.conn.get_session()
-        else:
-            return self.session
-
-    def get_all(self):
-        sources = []
-
-        Session = self.get_session()
-        with Session() as session:
-            sources = session.query(SourcesTable).all()
-
-        return sources
-
-    def is_source(self, id=None, url=None):
-        is_source = False
-        Session = self.get_session()
-
-        with Session() as session:
-            if id:
-                sources = (
-                    session.query(SourcesTable)
-                    .filter(SourcesTable.id == int(id))
-                    .count()
-                )
-                if sources != 0:
-                    is_source = True
-            if url:
-                sources = (
-                    session.query(SourcesTable).filter(SourcesTable.url == url).count()
-                )
-                if sources != 0:
-                    is_source = True
-
-        return is_source
-
-    def add(self, source):
-        # Get the set of column names from EntriesTable
-        valid_columns = {column.name for column in SourcesTable.__table__.columns}
-
-        # Remove keys that are not in EntriesTable
-        source = {key: value for key, value in source.items() if key in valid_columns}
-
-        source_obj = SourcesTable(**source)
-
-        Session = self.get_session()
-        with Session() as session:
-            session.add(source_obj)
-            session.commit()
-
 
 class SourceOperationalData(Base):
     __tablename__ = "sourceoperationaldata"
@@ -280,57 +183,6 @@ class SourceOperationalData(Base):
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     date_fetched = mapped_column(DateTime, nullable=True)
     source: Mapped[int]
-
-
-class SourceOperationalDataController(object):
-    def __init__(self, db, session=None):
-        self.conn = db
-        self.session = session
-
-    def get_session(self):
-        if not self.session:
-            return self.conn.get_session()
-        else:
-            return self.session
-
-    def is_fetch_possible(self, source, date_now, limit_seconds=60 * 10):
-        Session = self.get_session()
-        with Session() as session:
-            rows = (
-                session.query(SourceOperationalData)
-                .filter(SourceOperationalData.source == source.id)
-                .all()
-            )
-
-            if len(rows) == 0:
-                return True
-
-            row = rows[0]
-
-            source_datetime = row.date_fetched
-
-            diff = date_now - source_datetime
-
-            if diff.total_seconds() > limit_seconds:
-                return True
-            return False
-
-    def set_fetched(self, source, date_now):
-        Session = self.get_session()
-        with Session() as session:
-            op_data = (
-                session.query(SourceOperationalData)
-                .filter(SourceOperationalData.source == source.id)
-                .all()
-            )
-            if len(op_data) == 0:
-                obj = SourceOperationalData(date_fetched=date_now, source=source.id)
-                session.add(obj)
-                session.commit()
-            else:
-                op_data = op_data[0]
-                op_data.date_fetched = date_now
-                session.commit()
 
 
 class UserTags(Base):
@@ -473,23 +325,6 @@ class ConfigurationEntry(Base):
     max_sources_per_page: Mapped[int] = mapped_column(default=-100)
     max_number_of_related_links: Mapped[int] = mapped_column(default=-100)
     debug_mode: Mapped[bool] = mapped_column(default=False)
-
-
-class ConfigurationEntryController(object):
-    def __init__(self, db, session=None):
-        self.conn = db
-        self.session = session
-
-    def get_session(self):
-        if not self.session:
-            return self.conn.get_session()
-        else:
-            return self.session
-
-    def get(self):
-        Session = self.get_session()
-        with Session() as session:
-            return session.query(ConfigurationEntry).first()
 
 
 class SqlModel(object):

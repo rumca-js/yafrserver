@@ -6,18 +6,11 @@ import time
 import threading
 import os
 
-from sqlalchemy import (
-    create_engine,
-    or_,
-)
-
 from flask import Flask, request, jsonify, Response
 
 from utils.sqlmodel import (
-    SqlModel,
-    EntriesTable,
     EntriesTableController,
-    SourcesTable,
+    SourcesTableController,
     ConfigurationEntryController,
 )
 from utils.alchemysearch import AlchemySearch
@@ -37,23 +30,13 @@ from rsshistory.webtools.feedclient import FeedClient
 __version__ = "4.1.10"
 
 
-file_name = "feedclient.db"
 reading_entries = False
 reading_sources = False
 entries_per_page = 200
 
-crawler_server = "127.0.0.1"
-if "CRAWLER_BUDDY_SERVER" in os.environ:
-    crawler_server = os.environ["CRAWLER_BUDDY_SERVER"]
-crawler_port = "3000"
-if "CRAWLER_BUDDY_PORT" in os.environ:
-    crawler_port = os.environ["CRAWLER_BUDDY_PORT"]
-crawler_location = f"http://{crawler_server}:{crawler_port}"
 
-engine = create_engine("sqlite:///{}".format(file_name))
-#model = SqlModel(engine=engine)
-
-client = FeedClient(engine=engine, server_location=crawler_location)
+c = Configuration()
+client = FeedClient(engine=c.engine, server_location=c.crawler_location, model=c.model)
 
 app = Flask(__name__)
 
@@ -196,8 +179,8 @@ def index():
         )
 
     text += """ <h1>Info</h1> """
-    text += f""" <div>Crawler server= {crawler_server}:{crawler_port}</div>"""
-    text += f""" <div>DB= {file_name}</div>"""
+    text += f""" <div>Crawler server= {c.crawler_server}:{c.crawler_port}</div>"""
+    text += f""" <div>DB= {c.database_file}</div>"""
 
     text += "</div>"
 
@@ -269,7 +252,7 @@ def entry_json():
 
     entry_json = {}
 
-    entry = client.get_entry(id=id)
+    entry = EntriesTableController(db = c.config_entry.model).get(id=id)
     if entry:
         entry_json = entry_to_json(entry)
 
@@ -377,7 +360,7 @@ def source():
     link = request.args.get("link")
     id = request.args.get("source_id")
 
-    source = client.get_source(id=id)
+    source = SourcesTableController(db = c.config_entry.model).get(id=id)
 
     if source:
         text += """
@@ -405,7 +388,7 @@ def entry_dislikes():
 
     # what if it is in archive
 
-    entry = client.get_entry(id=id)
+    entry = EntriesTableController(db = c.config_entry.model).get(id=id)
 
     if not entry:
         return jsonify(
@@ -452,7 +435,7 @@ def background_refresh():
     news_sources = read_sources("init_sources_news.json")
     reading_sources = True
     for key, source in enumerate(news_sources):
-        builder = SourceDataBuilder(conn=client.db)
+        builder = SourceDataBuilder(conn=c.model)
         source["id"] = key
         print("Building {}".format(source["url"]))
         try:
@@ -488,7 +471,7 @@ def start_server():
 
 def main():
     WebConfig.init()
-    config = ConfigurationEntryController(db=client.db).get()
+    config = c.config_entry
     print(config.instance_title)
 
     # Start refresh in a daemon thread

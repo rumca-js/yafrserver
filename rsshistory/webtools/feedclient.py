@@ -345,7 +345,7 @@ def get_entries(db, source_id=None, ascending=True, page=1, rows_per_page=200):
 
 class FeedClient(object):
 
-    def __init__(self, day_limit=7, engine=None, parser=None, file_name="feedclient.db", server_location="http://127.0.0.1:3000"):
+    def __init__(self, day_limit=7, engine=None, parser=None, file_name="feedclient.db", server_location="http://127.0.0.1:3000", model=None):
         self.day_limit = day_limit
         self.engine = engine
         self.server_location = server_location
@@ -359,7 +359,10 @@ class FeedClient(object):
         if not self.database_file:
             self.database_file = file_name
 
-        self.db = SqlModel(database_file=self.database_file, engine=self.engine)
+        if not model:
+            self.db = SqlModel(database_file=self.database_file, engine=self.engine)
+        else:
+            self.db = model
 
     def get(self, url):
         request_server = RemoteServer(self.server_location)

@@ -1,20 +1,15 @@
 from rsshistory.webtools import Url
 
 from utils.sqlmodel import (
-    SqlModel,
     EntriesTable,
-    EntriesTableController,
-    SourcesTable,
-    SourcesTableController,
-    SourceOperationalData,
-    SourceOperationalDataController,
 )
 
 
 class EntryWrapper(object):
-    def __init__(self, entry=None, link=None):
+    def __init__(self, entry=None, link=None, id=None):
         self.entry = entry
         self.link = link
+        self.id = id
 
     def get(self):
         pass
@@ -173,3 +168,56 @@ def entry_to_json(entry, user_config=None, tags=False):
         json_entry["tags"] = list(tags)
 
     return json_entry
+
+
+class EntriesTableController(object):
+    def __init__(self, db, session=None):
+        self.conn = db
+        self.session = session
+
+    def get_session(self):
+        if not self.session:
+            return self.conn.get_session()
+        else:
+            return self.session
+
+    def get(self, id):
+        Session = self.get_session()
+
+        with Session() as session:
+            query = session.query(EntriesTable)
+
+            query = query.filter(EntriesTable.id == id)
+
+            return query.first()
+
+    def remove(self, days):
+        now = datetime.now(timezone.utc)
+        limit = now - timedelta(days=days)
+
+        Session = self.get_session()
+
+        with Session() as session:
+            entries = session.query
+
+            query = delete(EntriesTable).where(
+                EntriesTable.date_published < limit, EntriesTable.bookmarked == False
+            )
+            session.execute(query)
+            session.commit()
+
+    def add_entry(self, entry):
+        # Get the set of column names from EntriesTable
+        valid_columns = {column.name for column in EntriesTable.__table__.columns}
+
+        # Remove keys that are not in EntriesTable
+        entry = {key: value for key, value in entry.items() if key in valid_columns}
+
+        entry_obj = EntriesTable(**entry)
+
+        Session = self.get_session()
+        with Session() as session:
+            session.add(entry_obj)
+            session.commit()
+
+
