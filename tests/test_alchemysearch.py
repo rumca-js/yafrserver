@@ -17,7 +17,6 @@ import unittest
 
 class AlchemySearchTest(unittest.TestCase):
     def setUp(self):
-        self.disable_web_pages()
         self.found_row = None
 
     def create_table(self):

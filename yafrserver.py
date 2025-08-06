@@ -27,7 +27,7 @@ from rsshistory.webtools.feedclient import FeedClient
 # increment major version digit for releases, or link name changes
 # increment minor version digit for JSON data changes
 # increment last digit for small changes
-__version__ = "4.1.10"
+__version__ = "4.1.11"
 
 
 reading_entries = False
