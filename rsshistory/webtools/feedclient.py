@@ -12,12 +12,14 @@ from sqlalchemy import desc, asc
 from utils.sqlmodel import (
     SqlModel,
     EntriesTable,
-    EntriesTableController,
     SourcesTable,
-    SourcesTableController,
     SourceOperationalData,
-    SourceOperationalDataController,
     ReadMarkers,
+)
+from utils.controllers import (
+    EntriesTableController,
+    SourcesTableController,
+    SourceOperationalDataController,
 )
 from datetime import timedelta, datetime, timezone
 

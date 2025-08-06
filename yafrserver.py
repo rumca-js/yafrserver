@@ -8,7 +8,7 @@ import os
 
 from flask import Flask, request, jsonify, Response
 
-from utils.sqlmodel import (
+from utils.controllers import (
     EntriesTableController,
     SourcesTableController,
     ConfigurationEntryController,
@@ -22,12 +22,13 @@ from rsshistory.webtools import (
    Url,
 )
 from rsshistory.webtools.feedclient import FeedClient
+from rsshistory.configuration import Configuration
 
 
 # increment major version digit for releases, or link name changes
 # increment minor version digit for JSON data changes
 # increment last digit for small changes
-__version__ = "4.1.11"
+__version__ = "4.1.12"
 
 
 reading_entries = False
@@ -180,7 +181,7 @@ def index():
 
     text += """ <h1>Info</h1> """
     text += f""" <div>Crawler server= {c.crawler_server}:{c.crawler_port}</div>"""
-    text += f""" <div>DB= {c.database_file}</div>"""
+    text += f""" <div>DB= {c.database_file_name}</div>"""
 
     text += "</div>"
 
@@ -234,7 +235,7 @@ def entries_json():
 
     entries_json = []
 
-    search_engine = AlchemySearch(db=engine, page=page, rows_per_page=entries_per_page, search_term=search, ascending=False)
+    search_engine = AlchemySearch(db=c.engine, page=page, rows_per_page=entries_per_page, search_term=search, ascending=False)
     entries = search_engine.get_filtered_objects()
 
     for entry in reversed(entries):
@@ -395,7 +396,7 @@ def entry_dislikes():
             {"errors": ["Entry does not exists"]}
         )
 
-    remote_server = RemoteServer(crawler_location)
+    remote_server = RemoteServer(c.crawler_location)
 
     json_obj = remote_server.get_socialj(entry.link)
     if not json_obj:
@@ -414,7 +415,7 @@ def entry_dislikes():
 
 
 def fetch(url):
-    request_server = RemoteServer(crawler_location)
+    request_server = RemoteServer(c.crawler_location)
 
     all_properties = request_server.get_getj(url, name="RequestsCrawler")
     return all_properties
@@ -444,7 +445,7 @@ def background_refresh():
             print(str(E))
     reading_sources = False
 
-    remote_server = RemoteServer(crawler_location)
+    remote_server = RemoteServer(c.crawler_location)
     print("-----Starting operation-----")
     
     while True:

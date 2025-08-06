@@ -6,9 +6,10 @@ from sqlalchemy import (
 
 from utils.sqlmodel import (
     SqlModel,
+)
+from utils.controllers import (
     ConfigurationEntryController,
 )
-
 
 
 class Configuration(object):
@@ -36,7 +37,7 @@ class Configuration(object):
         self.crawler_server = "127.0.0.1"
         if "CRAWLER_BUDDY_SERVER" in os.environ:
             self.crawler_server = os.environ["CRAWLER_BUDDY_SERVER"]
-        crawler_port = "3000"
+        self.crawler_port = "3000"
         if "CRAWLER_BUDDY_PORT" in os.environ:
             self.crawler_port = os.environ["CRAWLER_BUDDY_PORT"]
 

@@ -10,3 +10,6 @@ from .sources import (
     SourcesTableController,
     SourceOperationalDataController,
 )
+from .system import (
+    ConfigurationEntryController,
+)
