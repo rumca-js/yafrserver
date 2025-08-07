@@ -20,7 +20,15 @@ class Configuration(object):
         self.create_engine()
         self.set_server_location()
 
-        self.config_entry = ConfigurationEntryController(db=self.model).get()
+        controller = ConfigurationEntryController(db=self.model)
+        self.config_entry = controller.get()
+        if not self.config_entry:
+            config = {}
+            config["instance_title"] = "Instance"
+            config["instance_description"] = "Instance"
+            controller.add(config)
+            self.config_entry = controller.get()
+
 
     def get_object():
         if not Configuration.obj:

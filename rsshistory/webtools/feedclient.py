@@ -325,26 +325,6 @@ class SearchResultHandler(AlchemyRowHandler):
         print_entry(row)
 
 
-def get_entries(db, source_id=None, ascending=True, page=1, rows_per_page=200):
-    Session = db.get_session()
-
-    with Session() as session:
-        query = session.query(EntriesTable)
-
-        if source_id:
-            query = query.filter(EntriesTable.source_obj__id == source_id)
-
-        if ascending:
-            query = query.order_by(asc(EntriesTable.date_published))
-        else:
-            query = query.order_by(desc(EntriesTable.date_published))
-
-        offset = (page - 1) * rows_per_page
-        query = query.offset(offset).limit(rows_per_page)
-
-        return query.all()
-
-
 class FeedClient(object):
 
     def __init__(self, day_limit=7, engine=None, parser=None, file_name="feedclient.db", server_location="http://127.0.0.1:3000", model=None):
@@ -482,54 +462,6 @@ class FeedClient(object):
         date_now = DateUtils.get_datetime_now_utc()
         print("Current time:{}".format(date_now))
 
-    def get_entries(self, source_id=None, conditions=None, ascending=True, page=1, rows_per_page=200):
-        Session = self.db.get_session()
-
-        with Session() as session:
-            query = session.query(EntriesTable)
-
-            if source_id:
-                query = query.filter(EntriesTable.source_obj__id == source_id)
-
-            if conditions:
-                for condition in conditions:
-                    query = query.filter(condition)
-
-            if ascending:
-                query = query.order_by(asc(EntriesTable.date_published))
-            else:
-                query = query.order_by(desc(EntriesTable.date_published))
-
-            offset = (page - 1) * rows_per_page
-            query = query.offset(offset).limit(rows_per_page)
-
-            return query.all()
-
-    def get_entry(self, id):
-        Session = self.db.get_session()
-
-        with Session() as session:
-            query = session.query(EntriesTable)
-
-            query = query.filter(EntriesTable.id == id)
-
-            return query.first()
-
-    def get_sources(self, conditions=None, page=1, rows_per_page=200):
-        Session = self.db.get_session()
-
-        with Session() as session:
-            query = session.query(SourcesTable)
-
-            if conditions:
-                for condition in conditions:
-                    query = query.filter(condition)
-
-            offset = (page - 1) * rows_per_page
-            query = query.offset(offset).limit(rows_per_page)
-
-            return query.all()
-
     def enable_all_sources(self):
         Session = self.db.get_session()
 
@@ -614,23 +546,6 @@ class FeedClient(object):
                 print("Source does not exist")
 
         return False
-
-    def get_source(self, id):
-        Session = self.db.get_session()
-
-        try:
-            source_id_int = int(id)
-        except ValueError:
-            print("Cannot find such source:{}".format(source_id))
-            return False
-
-        with Session() as session:
-            source = (
-                session.query(SourcesTable)
-                .filter(SourcesTable.id == source_id_int)
-                .first()
-            )
-            return source
 
     def mark_read(self):
         Session = self.db.get_session()

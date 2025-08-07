@@ -1,3 +1,5 @@
+from datetime import timedelta, datetime, timezone
+from sqlalchemy import delete, desc, asc
 from rsshistory.webtools import Url
 
 from utils.sqlmodel import (
@@ -191,6 +193,35 @@ class EntriesTableController(object):
 
             return query.first()
 
+    def all(self):
+        entries = []
+
+        Session = self.get_session()
+        with Session() as session:
+            entries = session.query(EntriesTable).all()
+
+        return entries
+
+    def filter(self, conditions=None, ascending=True, page=1, rows_per_page=200):
+        Session = self.db.get_session()
+
+        with Session() as session:
+            query = session.query(EntriesTable)
+
+            if conditions:
+                for condition in conditions:
+                    query = query.filter(condition)
+
+            if ascending:
+                query = query.order_by(asc(EntriesTable.date_published))
+            else:
+                query = query.order_by(desc(EntriesTable.date_published))
+
+            offset = (page - 1) * rows_per_page
+            query = query.offset(offset).limit(rows_per_page)
+
+            return query.all()
+
     def remove(self, days):
         now = datetime.now(timezone.utc)
         limit = now - timedelta(days=days)
@@ -206,7 +237,7 @@ class EntriesTableController(object):
             session.execute(query)
             session.commit()
 
-    def add_entry(self, entry):
+    def add(self, entry):
         # Get the set of column names from EntriesTable
         valid_columns = {column.name for column in EntriesTable.__table__.columns}
 
@@ -216,8 +247,15 @@ class EntriesTableController(object):
         entry_obj = EntriesTable(**entry)
 
         Session = self.get_session()
+        try:
+            with Session() as session:
+                session.add(entry_obj)
+                session.commit()
+        except Exception as E:
+            print(str(E))
+
+    def count(self):
+        Session = self.get_session()
         with Session() as session:
-            session.add(entry_obj)
-            session.commit()
-
-
+            q = session.query(EntriesTable)
+            return q.count()

@@ -16,19 +16,19 @@ from utils.controllers import (
 from utils.alchemysearch import AlchemySearch
 from utils.controllers.entries import entry_to_json
 from utils.controllers.sources import source_to_json
+from utils.controllers.sourcesreader import SourceReader
 from rsshistory.webtools import (
    WebConfig,
    RemoteServer,
    Url,
 )
-from rsshistory.webtools.feedclient import FeedClient
 from rsshistory.configuration import Configuration
 
 
 # increment major version digit for releases, or link name changes
 # increment minor version digit for JSON data changes
 # increment last digit for small changes
-__version__ = "4.1.12"
+__version__ = "4.1.13"
 
 
 reading_entries = False
@@ -37,7 +37,6 @@ entries_per_page = 200
 
 
 c = Configuration()
-client = FeedClient(engine=c.engine, server_location=c.crawler_location, model=c.model)
 
 app = Flask(__name__)
 
@@ -253,7 +252,7 @@ def entry_json():
 
     entry_json = {}
 
-    entry = EntriesTableController(db = c.config_entry.model).get(id=id)
+    entry = EntriesTableController(db = c.model).get(id=id)
     if entry:
         entry_json = entry_to_json(entry)
 
@@ -345,7 +344,7 @@ def sources_json():
 
     sources_json = []
 
-    sources = client.get_sources(page=page, rows_per_page=entries_per_page)
+    sources = SourcesTableController(db=c.model).filter(page=page, rows_per_page=entries_per_page)
     sources_size = len(sources)
     for source in sources:
         source_json = source_to_json(source)
@@ -417,7 +416,7 @@ def entry_dislikes():
 def fetch(url):
     request_server = RemoteServer(c.crawler_location)
 
-    all_properties = request_server.get_getj(url, name="RequestsCrawler")
+    all_properties = request_server.get_getj(url)
     return all_properties
 
 
@@ -429,7 +428,7 @@ def read_sources(file):
 
 def background_refresh():
     from utils.controllers.sources import SourceDataBuilder
-    global reading_sources, reading_entries, client
+    global reading_sources, reading_entries
 
     print("-----Reading sources-----")
 
@@ -438,21 +437,27 @@ def background_refresh():
     for key, source in enumerate(news_sources):
         builder = SourceDataBuilder(conn=c.model)
         source["id"] = key
-        print("Building {}".format(source["url"]))
         try:
-            builder.build(link_data = source)
+            source_obj = builder.build(link_data = source)
+            if source_obj:
+                print("Built {}".format(source["url"]))
         except Exception as E:
             print(str(E))
     reading_sources = False
 
     remote_server = RemoteServer(c.crawler_location)
     print("-----Starting operation-----")
+
+    reader = SourceReader(db = c.model)
     
     while True:
+        print("In a loop")
         if remote_server.is_ok():
             reading_entries = True
-            client.refresh()
+            reader.read()
             reading_entries = False
+        else:
+            print(f"Server is not OK {c.crawler_location}")
 
         time.sleep(60*10) # every 10 minutes
 

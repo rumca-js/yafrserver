@@ -1,3 +1,4 @@
+from sqlalchemy import desc, asc
 from utils.sqlmodel import (
     SourcesTable,
     SourceOperationalData,
@@ -25,7 +26,7 @@ class SourcesTableController(object):
 
             return query.first()
 
-    def get_all(self):
+    def all(self):
         sources = []
 
         Session = self.get_session()
@@ -33,6 +34,26 @@ class SourcesTableController(object):
             sources = session.query(SourcesTable).all()
 
         return sources
+
+    def filter(self, conditions=None, ascending=True, page=1, rows_per_page=200):
+        Session = self.conn.get_session()
+
+        with Session() as session:
+            query = session.query(SourcesTable)
+
+            if conditions:
+                for condition in conditions:
+                    query = query.filter(condition)
+
+            if ascending:
+                query = query.order_by(asc(SourcesTable.id))
+            else:
+                query = query.order_by(desc(SourcesTable.id))
+
+            offset = (page - 1) * rows_per_page
+            query = query.offset(offset).limit(rows_per_page)
+
+            return query.all()
 
     def is_source(self, id=None, url=None):
         is_source = False

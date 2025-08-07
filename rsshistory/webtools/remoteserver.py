@@ -22,6 +22,7 @@ class RemoteServer(object):
                 stream=False,
             )
             response.raise_for_status()  # raise an error for bad HTTP status codes
+            return True
         except requests.RequestException as e:
             print(f"Crawler HTTP request failed: {e}")
             return False
