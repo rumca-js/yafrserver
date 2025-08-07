@@ -32,7 +32,7 @@ class AlchemySearchTest(unittest.TestCase):
                 "description" : "description",
         }
 
-        controller.add_entry(entry)
+        controller.add(entry)
 
     def handle_row(self, row):
         self.found_row = row
