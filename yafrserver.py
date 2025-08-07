@@ -28,7 +28,7 @@ from rsshistory.configuration import Configuration
 # increment major version digit for releases, or link name changes
 # increment minor version digit for JSON data changes
 # increment last digit for small changes
-__version__ = "4.1.13"
+__version__ = "4.1.14"
 
 
 reading_entries = False
