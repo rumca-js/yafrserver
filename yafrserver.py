@@ -360,7 +360,7 @@ def source():
     link = request.args.get("link")
     id = request.args.get("source_id")
 
-    source = SourcesTableController(db = c.config_entry.model).get(id=id)
+    source = SourcesTableController(db = c.model).get(id=id)
 
     if source:
         text += """
@@ -388,7 +388,7 @@ def entry_dislikes():
 
     # what if it is in archive
 
-    entry = EntriesTableController(db = c.config_entry.model).get(id=id)
+    entry = EntriesTableController(db = c.model).get(id=id)
 
     if not entry:
         return jsonify(
