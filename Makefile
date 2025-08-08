@@ -22,6 +22,7 @@ install:
 	poetry install
 
 server:
+	poetry run python yafrreader.py &
 	poetry run python yafrserver.py
 
 # Assumptions:

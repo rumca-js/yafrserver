@@ -21,7 +21,7 @@ class Configuration(object):
         # increment major version digit for releases, or link name changes
         # increment minor version digit for JSON data changes
         # increment last digit for small changes
-        self.__version__ = "4.1.15"
+        self.__version__ = "4.1.16"
 
         self.entries_per_page = 200
 
@@ -51,6 +51,7 @@ class Configuration(object):
 
     def set_server_location(self):
         self.crawler_server = "127.0.0.1"
+        self.crawler_server = "192.168.0.200"
         if "CRAWLER_BUDDY_SERVER" in os.environ:
             self.crawler_server = os.environ["CRAWLER_BUDDY_SERVER"]
         self.crawler_port = "3000"

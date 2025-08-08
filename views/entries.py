@@ -8,6 +8,9 @@ from utils.controllers.entries import entry_to_json
 from utils.controllers import (
     EntriesTableController,
 )
+from rsshistory.webtools import (
+   RemoteServer,
+)
 
 
 def v_entries(request):
@@ -108,3 +111,36 @@ def v_entry_json(request):
         entry_json = entry_to_json(entry)
 
     return jsonify(entry_json)
+
+
+def v_entry_dislikes(request):
+    text = ""
+    c = Configuration.get_object()
+
+    id = request.args.get("entry_id")
+
+    # what if it is in archive
+
+    entry = EntriesTableController(db = c.model).get(id=id)
+
+    if not entry:
+        return jsonify(
+            {"errors": ["Entry does not exists"]}
+        )
+
+    remote_server = RemoteServer(c.crawler_location)
+
+    json_obj = remote_server.get_socialj(entry.link)
+    if not json_obj:
+        return jsonify(
+            {"errors": ["Could not obtain social data"]},
+        )
+
+    try:
+        return jsonify(json_obj)
+    except Exception as E:
+        return jsonify(
+                {"errors": ["Could not dump social data: {}".format(E)]},
+        )
+
+    return get_html(id=0, body=text, title="Source")
