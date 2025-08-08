@@ -1,7 +1,7 @@
 let small_icons = true;
 
 function getSourceListText(source) {
-    let source_link = "";
+    let source_link = `/source?source_id=${source.id}`;
     let hover_title = source.title;
     let invalid_style = "";
     let bookmark_class = "";

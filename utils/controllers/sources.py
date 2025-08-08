@@ -165,6 +165,7 @@ class SourceDataBuilder(object):
 def source_to_json(source, user_config=None):
     json_source = {}
 
+    json_source["id"] = source.id
     json_source["url_absolute"] = source.url
     json_source["url"] = source.url
     json_source["enabled"] = source.enabled

@@ -17,6 +17,14 @@ class Configuration(object):
 
     def __init__(self):
         self.database_file_name = "feedclient.db"
+
+        # increment major version digit for releases, or link name changes
+        # increment minor version digit for JSON data changes
+        # increment last digit for small changes
+        self.__version__ = "4.1.15"
+
+        self.entries_per_page = 200
+
         self.create_engine()
         self.set_server_location()
 
