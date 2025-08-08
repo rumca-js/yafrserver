@@ -25,6 +25,9 @@ server:
 	poetry run python yafrreader.py &
 	poetry run python yafrserver.py
 
+web:
+	poetry run python yafrserver.py
+
 # Assumptions:
 #  - python black is in your path
 # Black should use gitignore files to ignore refactoring
