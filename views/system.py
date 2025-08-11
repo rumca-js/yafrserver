@@ -2,7 +2,7 @@ from flask import request, jsonify
 from utils.sqlmodel import SearchView
 from rsshistory.status import Status
 from rsshistory.configuration import Configuration
-from views.views import get_html
+from views.views import *
 
 
 def v_index(request):
@@ -126,7 +126,7 @@ def v_get_search_container(request):
 
     for searchview in c.model.all(SearchView):
         row = {}
-        row["link"] = "/entries?v=" + searchview.id
+        row["link"] = "/entries?view=" + str(searchview.id)
         row["icon"] = "/static/icons/icons8-search-100.png"
         row["title"] = searchview.name
         rows.append(row)

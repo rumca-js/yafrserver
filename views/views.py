@@ -5,7 +5,10 @@ def get_template(name, context=None):
     with open("static/templates/" + name) as fh:
         data = fh.read()
         if context:
-            return data.format_map(context)
+            for item in context:
+                value = context[item]
+                key = "{"+item+ "}"
+                data = data.replace(key, value)
 
         return data
 

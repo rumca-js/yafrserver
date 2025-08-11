@@ -302,12 +302,12 @@ function performSearch() {
 
     let link = `/entries-json?page=${page_num}&search=${search_text}`;
 
-    getDynamicJson(link, function(entries) {{
+    getDynamicJson(link, function(entries) {
         var finished_text = getEntriesList(entries);
         let pagination_text = getPaginationText(entries, 200);
         $('#listData').html(finished_text);
         $('#pagination').html(pagination_text);
-    }});
+    });
 }
 
 
@@ -349,7 +349,6 @@ document.addEventListener('DOMContentLoaded', () => {
     getMenuPersonalContainer();
     getMenuTools();
     getMenuUsers();
-    $("#searchSuggestions").html(getSearchSuggestionContainer());
 });
 
 

@@ -2,7 +2,7 @@ from flask import request, jsonify
 
 from rsshistory.configuration import Configuration
 from utils.alchemysearch import AlchemySearch
-from views.views import get_html
+from views.views import get_html, get_template
 from utils.controllers.entries import entry_to_json
 
 from utils.controllers import (
@@ -20,29 +20,28 @@ def v_entries(request):
     source_id = request.args.get("source_id")
     page = request.args.get("page") or ""
     search = request.args.get("search") or ""
-
-    index = 0
+    view = request.args.get("view") or ""
 
     entry_id = request.args.get("id")
-    link = f"/entries-json?link={link}&page={page}&source_id={source_id}&search={search}"
+    form_action_url = "/entries"
+    form_method = "GET"
+    form_submit_button_name = "Search"
 
-    text = """
-    <div id="listData" class="container"></div>
-    <div id="pagination" class="container"></div>
-    <script>
-       let loading_text = getSpinnerText();
-       $('#listData').html(loading_text);
+    context = {}
+    context["query_page"] = "/entries-json"
+    context["search_suggestions_page"] = "/get-search-suggestions-entries"
+    context["search_history_page"] = "/json-user-search-history"
+    entries_list__script = get_template("entry_list__script.js", context = context)
 
-       getDynamicJson("{}", function(entries) {{
-          let finished_text = getEntriesList(entries);
-          let pagination_text = getPaginationText(entries, 200);
-          $('#listData').html(finished_text);
-          $('#pagination').html(pagination_text);
-       }});
-    </script>
-    """.format(link)
+    context = {}
+    context["form_action_url"] = form_action_url
+    context["form_method"] = form_method
+    context["form_submit_button_name"] = form_submit_button_name
+    context["entries_list__script"] = entries_list__script
 
-    return get_html(id=0, body=text, title="Entries")
+    entries_list = get_template("entry_list.html", context = context)
+
+    return get_html(id=0, body=entries_list, title="Entries")
 
 
 def v_entries_json(request):
@@ -50,6 +49,7 @@ def v_entries_json(request):
 
     link = request.args.get("link") or None
     search = request.args.get("search") or None
+    view = request.args.get("view") or None
     source_id = request.args.get("source_id")
     if source_id == "None":
         source_id = None

@@ -140,6 +140,21 @@ def search_internet():
     return v_search_internet(request)
 
 
+@app.route("/searchviews-initialize")
+def searchviews_initialize():
+    return v_searchviews_initialize(request)
+
+
+@app.route("/get-search-suggestions-entries")
+def get_search_suggestions_entries():
+    return v_get_search_suggestions_entries(request)
+
+
+@app.route("/json-user-search-history")
+def json_user_search_history():
+    return v_json_user_search_history(request)
+
+
 def start_server():
     host = "0.0.0.0"
     port=8777

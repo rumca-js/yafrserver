@@ -421,3 +421,14 @@ class SqlModel(object):
             entries = session.query(table).all()
 
         return entries
+
+    def truncate(self, table):
+        entries = []
+
+        Session = self.get_session()
+        with Session() as session:
+            query = delete(table)
+            session.execute(query)
+            session.commit()
+
+        return entries
