@@ -248,6 +248,58 @@ class ReadMarkers(Base):
                 session.commit()
 
 
+class SearchView(Base):
+    __tablename__ = "searchview"
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
+    name: Mapped[str] = mapped_column(String(500))
+    default: Mapped[bool] = mapped_column(default=False)
+    hover_text: Mapped[Optional[str]] = mapped_column(String(500))
+    priority: Mapped[int] = mapped_column(default=0)
+    filter_statement: Mapped[Optional[str]] = mapped_column(String(500))
+    icon: Mapped[Optional[str]] = mapped_column(String(500))
+    order_by: Mapped[Optional[str]] = mapped_column(String(500))
+    entry_limit: Mapped[int] = mapped_column(default=0)
+    auto_fetch: Mapped[bool] = mapped_column(default=False)
+    date_published_day_limit: Mapped[int] = mapped_column(default=0)
+    date_created_day_limit: Mapped[int] = mapped_column(default=0)
+    user: Mapped[bool] = mapped_column(default=False)
+
+
+class Gateway(Base):
+    __tablename__ = "gateway"
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
+    link: Mapped[str] = mapped_column(String(1000))
+    title: Mapped[str] = mapped_column(String(1000))
+    description: Mapped[str] = mapped_column(String(1000))
+    gateway_type: Mapped[str] = mapped_column(String(1000))
+
+
+class UserSearchHistory(Base):
+    __tablename__ = "usersearchhistory"
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
+    search_query: Mapped[str] = mapped_column(String(500))
+    date = mapped_column(DateTime(timezone=True), nullable=True)
+    user: Mapped[Optional[int]] = mapped_column()
+
+
+class UserEntryTransitionHistory(Base):
+    __tablename__ = "userentrytransitionhistory"
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
+    counter: Mapped[Optional[int]] = mapped_column()
+    user: Mapped[Optional[int]] = mapped_column()
+    entry_from: Mapped[Optional[int]] = mapped_column()
+    entry_to: Mapped[Optional[int]] = mapped_column()
+
+
+class UserEntryVisitHistory(Base):
+    __tablename__ = "userentryvisithistory"
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
+    visits: Mapped[Optional[int]] = mapped_column()
+    date_last_visit = mapped_column(DateTime(timezone=True), nullable=True)
+    user: Mapped[Optional[int]] = mapped_column()
+    entry: Mapped[Optional[int]] = mapped_column()
+
+
 class ConfigurationEntry(Base):
     __tablename__ = "configurationentry"
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
@@ -345,3 +397,12 @@ class SqlModel(object):
     def close(self):
         if self.engine:
             self.engine.dispose()
+
+    def all(self, table):
+        entries = []
+
+        Session = self.get_session()
+        with Session() as session:
+            entries = session.query(table).all()
+
+        return entries

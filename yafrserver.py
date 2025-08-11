@@ -14,10 +14,13 @@ from rsshistory.webtools import (
 )
 from rsshistory.configuration import Configuration
 from rsshistory.status import Status
-from views.entries import v_entries, v_entries_json, v_entry, v_entry_json, v_entry_dislikes
-from views.sources import v_sources, v_sources_json, v_source
-from views.system import v_index, v_search
-from views.views import get_html
+from views.entries import *
+from views.sources import *
+from views.system import *
+from views.searchviews import *
+from views.tools import *
+from views.userhistory import *
+from views.views import *
 
 
 
@@ -47,6 +50,11 @@ def entry_json():
     return v_entry_json(request)
 
 
+@app.route("/entry-dislikes")
+def entry_dislikes():
+    return v_entry_dislikes(request)
+
+
 @app.route("/search")
 def search():
     return v_search(request)
@@ -72,9 +80,64 @@ def source():
     return v_source(request)
 
 
-@app.route("/entry-dislikes")
-def entry_dislikes():
-    return v_entry_dislikes(request)
+@app.route("/get-indicators")
+def get_indicators():
+    return v_get_indicators(request)
+
+
+@app.route("/get-search-container")
+def get_search_container():
+    return v_get_search_container(request)
+
+
+@app.route("/get-global-container")
+def get_global_container():
+    return v_get_global_container(request)
+
+
+@app.route("/get-personal-container")
+def get_personal_container():
+    return v_get_personal_container(request)
+
+
+@app.route("/get-tools-container")
+def get_tools_container():
+    return v_get_tools_container(request)
+
+
+@app.route("/get-users-container")
+def get_users_container():
+    return v_get_users_container(request)
+
+
+@app.route("/admin")
+def admin():
+    return v_admin(request)
+
+
+@app.route("/page-show-props")
+def page_show_props():
+    return v_page_show_props(request)
+
+
+@app.route("/user-search-history")
+def user_search_history():
+    return v_user_search_history(request)
+
+
+@app.route("/user-browse-history")
+def user_browse_history():
+    return v_user_browse_history(request)
+
+
+@app.route("/gateways")
+def gateways():
+    return v_gateways(request)
+
+
+@app.route("/search-internet")
+def search_internet():
+    return v_search_internet(request)
 
 
 def start_server():

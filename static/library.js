@@ -11,6 +11,18 @@ function isMobile() {
 }
 
 
+function showElement(element) {
+   $(element).show();
+   $(element).removeClass("invisible");
+}
+
+
+function hideElement(element) {
+   $(element).hide();
+   $(element).addClass("invisible");
+}
+
+
 function escapeHtml(unsafe)
 {
     if (unsafe == null)

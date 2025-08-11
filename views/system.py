@@ -1,3 +1,5 @@
+from flask import request, jsonify
+from rsshistory.status import Status
 from rsshistory.configuration import Configuration
 from views.views import get_html
 
@@ -46,3 +48,165 @@ def v_search(request):
     """
 
     return get_html(id=0, body=text, title="Search")
+
+def v_get_indicators(request):
+    c = Configuration.get_object()
+    status = Status.get_object()
+
+    indicators = {}
+
+    sources_queue_size = 0
+    sources_are_fetched = False
+    read_later_queue_size = 0
+    read_later_status = False
+    is_sources_error = False
+    is_internet_error = False
+    is_remote_server_down = False
+    threads_error = False
+    is_backgroundjobs_error = False
+    is_configuration_error = False
+
+    indicators["is_reading"] = {}
+    indicators["is_reading"]["message"] = f"Sources queue:{sources_queue_size}"
+    indicators["is_reading"]["status"] = sources_are_fetched
+
+    indicators["read_later_queue"] = {}
+    indicators["read_later_queue"][
+        "message"
+    ] = f"Read later queue {read_later_queue_size}"
+    indicators["read_later_queue"]["status"] = read_later_status
+
+    indicators["sources_error"] = {}
+    indicators["sources_error"]["message"] = f"Sources error"
+    indicators["sources_error"]["status"] = is_sources_error
+
+    indicators["internet_error"] = {}
+    indicators["internet_error"]["message"] = f"Internet error"
+    indicators["internet_error"]["status"] = is_internet_error
+
+    indicators["crawling_server_error"] = {}
+    indicators["crawling_server_error"]["message"] = f"Crawling server error"
+    indicators["crawling_server_error"]["status"] = is_remote_server_down
+
+    indicators["threads_error"] = {}
+    indicators["threads_error"]["message"] = f"Threads error"
+    indicators["threads_error"]["status"] = threads_error
+
+    indicators["jobs_error"] = {}
+    indicators["jobs_error"]["message"] = f"Jobs error"
+    indicators["jobs_error"]["status"] = is_backgroundjobs_error
+
+    indicators["configuration_error"] = {}
+    indicators["configuration_error"]["message"] = f"Configuration error"
+    indicators["configuration_error"]["status"] = is_configuration_error
+
+    data = {"indicators": indicators}
+    return jsonify(data)
+
+
+def v_get_search_container(request):
+    data = {}
+
+    rows = []
+
+    row = {}
+    row["link"] = "/search-internet"
+    row["icon"] = "/static/icons/icons8-search-100.png"
+    row["title"] = "Search Internet"
+    rows.append(row)
+
+    row = {}
+    row["link"] = "/gateways"
+    row["icon"] = "/static/icons/icons8-search-100.png"
+    row["title"] = "Gateways"
+    rows.append(row)
+
+    data["rows"] = rows
+    data["title"] = "Search"
+
+    return jsonify(data)
+
+
+def v_get_global_container(request):
+    data = {}
+
+    rows = []
+
+    row = {}
+    row["link"] = "/sources"
+    row["icon"] = "/static/icons/icons8-search-100.png"
+    row["title"] = "Sources"
+    rows.append(row)
+
+    row = {}
+    row["link"] = "/entries"
+    row["icon"] = "/static/icons/icons8-search-100.png"
+    row["title"] = "Entries"
+    rows.append(row)
+
+    data["rows"] = rows
+    data["title"] = "Global"
+
+    return jsonify(data)
+
+
+def v_get_personal_container(request):
+    data = {}
+
+    rows = []
+
+    row = {}
+    row["link"] = "/user-search-history"
+    row["icon"] = "/static/icons/icons8-search-100.png"
+    row["title"] = "Search history"
+    rows.append(row)
+
+    row = {}
+    row["link"] = "/user-browse-history"
+    row["icon"] = "/static/icons/icons8-search-100.png"
+    row["title"] = "Browse history"
+    rows.append(row)
+
+    data["rows"] = rows
+    data["title"] = "Personal"
+
+    return jsonify(data)
+
+
+def v_get_tools_container(request):
+    data = {}
+
+    rows = []
+
+    row = {}
+    row["link"] = "/page-show-props"
+    row["icon"] = "/static/icons/icons8-search-100.png"
+    row["title"] = "Page Properties"
+    rows.append(row)
+
+    data["rows"] = rows
+    data["title"] = "Tools"
+
+    return jsonify(data)
+
+
+def v_get_users_container(request):
+    data = {}
+
+    rows = []
+
+    row = {}
+    row["link"] = "/admin"
+    row["icon"] = "/static/icons/icons8-search-100.png"
+    row["title"] = "Admin"
+    rows.append(row)
+
+    data["rows"] = rows
+    data["title"] = "Users"
+
+    return jsonify(data)
+
+
+def v_admin(request):
+    text = get_template("admin_page.html")
+    return get_html(id=0, body=text, title="Admin")

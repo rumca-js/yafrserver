@@ -9,6 +9,20 @@ let show_pure_links = false;
 let highlight_bookmarks = false;
 let sort_function = "-date_published"; // page_rating_votes, date_published
 
+let common_indicators = null;
+
+
+function add_text(error_line, text) {
+    let result = "";
+    if (error_line == "") {
+        result = text;
+    }
+    else {
+        result += ", " + text;
+    }
+
+    return result;
+}
 
 
 function getInitialSearchSuggestsions() {
@@ -95,6 +109,106 @@ function getDislikeData(attempt = 1, entry_id=null) {
     });
 }
 
+let currentgetIndicators = 0;
+function getIndicators(attempt=1) {
+    let requestCurrentgetIndicators = ++currentgetIndicators;
+
+    let url = '/get-indicators';
+    
+    $.ajax({
+       url: url,
+       type: 'GET',
+       timeout: 10000,
+       success: function(data) {
+           if (requestCurrentgetIndicators != currentgetIndicators)
+           {
+               return;
+           }
+           common_indicators = data.indicators;
+
+           SetMenuStatusLine();
+           SetFooterStatusLine();
+       },
+       error: function(xhr, status, error) {
+           if (requestCurrentgetIndicators != currentgetIndicators)
+           {
+               return;
+           }
+           
+           if (attempt < 3) {
+               getIndicators(attempt + 1);
+           } else {
+           }
+       }
+    });
+}
+
+
+function SetMenuStatusLine() {
+       if (common_indicators.read_later_queue.status) {
+           showElement(".readLaterElement");
+       }
+       else {
+           hideElement(".readLaterElement");
+       }
+       if (common_indicators.sources_error.status) {
+           showElement(".sourceErrorElement");
+       }
+       else {
+           hideElement(".sourceErrorElement");
+       }
+       if (common_indicators.threads_error.status) {
+           showElement(".configurationErrorElement");
+       }
+       else {
+           hideElement(".configurationErrorElement");
+       }
+       if (common_indicators.configuration_error.status ||
+           common_indicators.jobs_error.status) {
+           showElement(".adminErrorElement");
+       }
+       else {
+           hideElement(".adminErrorElement");
+       }
+}
+
+
+function SetFooterStatusLine() {
+   let error_line = "";
+
+   if (common_indicators.sources_error.status) {
+       error_line += add_text(error_line, "Sources");
+   }
+   if (common_indicators.threads_error.status) {
+       error_line += add_text(error_line, "Threads");
+   }
+   if (common_indicators.jobs_error.status) {
+       error_line += add_text(error_line, "Jobs");
+   }
+   if (common_indicators.configuration_error.status) {
+       error_line += add_text(error_line, "Configuration");
+   }
+   if (common_indicators.internet_error.status) {
+       error_line += add_text(error_line, "Internet");
+   }
+   if (common_indicators.crawling_server_error.status) {
+       error_line += add_text(error_line, "Crawling server");
+   }
+   if (common_indicators.is_reading.status) {
+       error_line += add_text(error_line, common_indicators.is_reading.message);
+   }
+
+   if (error_line == "") {
+       $("#footerLine").html("");
+       $("#footerLine").hide();
+   }
+   else {
+       $("#footerLine").html(error_line);
+       $("#footerLine").show();
+   }
+}
+
+
 function fillDislike() {
     let parameters = $('#entryParameters').html();
 
@@ -112,6 +226,72 @@ function fillDislike() {
     parameters = `${parameters} ${text.join(" ")}`;
 
     $('#entryParameters').html(parameters);
+}
+
+
+function processMenuData(data, container) {
+    let finished_text = `
+    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+       ${data.title}
+    </a>
+    <ul class="dropdown-menu">
+        `;
+
+    data.rows.forEach(row => {
+
+       finished_text += `
+       <li>
+         <a href="${row.link}" class="dropdown-item" title="${row.title}">
+           <img src="${row.icon}" class="mainbutton-icon" />
+           ${row.title}
+         </a>
+       </li>
+       `;
+    });
+
+    finished_text += "</ul>"
+
+    $(container).html(finished_text);
+}
+
+
+function getMenuSearchContainer() {
+    let link = "get-search-container";
+    getDynamicJson(link, function(data) {
+        processMenuData(data, '#MenuSearchContainer');
+    });
+}
+
+
+function getMenuGlobalContainer() {
+    let link = "get-global-container";
+    getDynamicJson(link, function(data) {
+        processMenuData(data, '#MenuGlobalContainer');
+    });
+}
+
+
+function getMenuPersonalContainer() {
+    let link = "get-personal-container";
+    getDynamicJson(link, function(data) {
+        processMenuData(data, '#MenuPersonalContainer');
+    });
+}
+
+
+function getMenuTools() {
+    let link = "get-tools-container";
+    getDynamicJson(link, function(data) {
+        processMenuData(data, '#MenuToolsContainer');
+    });
+}
+
+
+function getMenuUsers() {
+    let link = "get-users-container";
+    getDynamicJson(link, function(data) {
+        processMenuData(data, '#MenuUsersContainer');
+    });
 }
 
 
@@ -162,6 +342,13 @@ $(document).on('keydown', "#searchInput", function(e) {
 //-----------------------------------------------
 document.addEventListener('DOMContentLoaded', () => {
     console.log("Initializing")
+
+    getIndicators();
+    getMenuSearchContainer();
+    getMenuGlobalContainer();
+    getMenuPersonalContainer();
+    getMenuTools();
+    getMenuUsers();
     $("#searchSuggestions").html(getSearchSuggestionContainer());
 });
 
