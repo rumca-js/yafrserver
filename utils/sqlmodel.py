@@ -300,6 +300,21 @@ class UserEntryVisitHistory(Base):
     entry: Mapped[Optional[int]] = mapped_column()
 
 
+class BackgroundJob(Base):
+    __tablename__ = "backgroundjob"
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
+    job: Mapped[str] = mapped_column(String(1000))
+    task: Mapped[Optional[str]] = mapped_column(String(1000))
+    subject: Mapped[str] = mapped_column(String(1000))
+    args: Mapped[str] = mapped_column(String(1000))
+    date_created = mapped_column(DateTime(timezone=True), nullable=True)
+
+    priority: Mapped[int] = mapped_column(default=0)
+    errors: Mapped[int] = mapped_column(default=0)
+    enabled: Mapped[bool] = mapped_column(default=True)
+    user: Mapped[Optional[int]] = mapped_column()
+
+
 class ConfigurationEntry(Base):
     __tablename__ = "configurationentry"
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
