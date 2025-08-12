@@ -10,7 +10,6 @@ from utils.controllers import (
 )
 from rsshistory.webtools import (
    WebConfig,
-   RemoteServer,
 )
 from rsshistory.configuration import Configuration
 from rsshistory.status import Status
@@ -20,6 +19,7 @@ from views.system import *
 from views.searchviews import *
 from views.tools import *
 from views.userhistory import *
+from views.browsers import *
 from views.views import *
 
 
@@ -80,34 +80,34 @@ def source():
     return v_source(request)
 
 
-@app.route("/get-indicators")
-def get_indicators():
-    return v_get_indicators(request)
+@app.route("/json-indicators")
+def json_indicators():
+    return v_json_indicators(request)
 
 
-@app.route("/get-search-container")
-def get_search_container():
-    return v_get_search_container(request)
+@app.route("/json-search-container")
+def json_search_container():
+    return v_json_search_container(request)
 
 
-@app.route("/get-global-container")
-def get_global_container():
-    return v_get_global_container(request)
+@app.route("/json-global-container")
+def json_global_container():
+    return v_json_global_container(request)
 
 
-@app.route("/get-personal-container")
-def get_personal_container():
-    return v_get_personal_container(request)
+@app.route("/json-personal-container")
+def json_personal_container():
+    return v_json_personal_container(request)
 
 
-@app.route("/get-tools-container")
-def get_tools_container():
-    return v_get_tools_container(request)
+@app.route("/json-tools-container")
+def json_tools_container():
+    return v_json_tools_container(request)
 
 
-@app.route("/get-users-container")
-def get_users_container():
-    return v_get_users_container(request)
+@app.route("/json-users-container")
+def json_users_container():
+    return v_json_users_container(request)
 
 
 @app.route("/admin")
@@ -118,6 +118,11 @@ def admin():
 @app.route("/page-show-props")
 def page_show_props():
     return v_page_show_props(request)
+
+
+@app.route("/json-page-props")
+def json_page_props():
+    return v_json_page_props(request)
 
 
 @app.route("/user-search-history")
@@ -145,14 +150,24 @@ def searchviews_initialize():
     return v_searchviews_initialize(request)
 
 
-@app.route("/get-search-suggestions-entries")
-def get_search_suggestions_entries():
-    return v_get_search_suggestions_entries(request)
+@app.route("/json-search-suggestions-entries")
+def json_search_suggestions_entries():
+    return v_json_search_suggestions_entries(request)
+
+
+@app.route("/json-user-browse-history")
+def json_user_browse_history():
+    return v_json_user_browse_history(request)
 
 
 @app.route("/json-user-search-history")
 def json_user_search_history():
     return v_json_user_search_history(request)
+
+
+@app.route("/json-browsers")
+def json_browsers():
+    return v_json_browsers(request)
 
 
 def start_server():

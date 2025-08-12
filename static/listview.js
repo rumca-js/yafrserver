@@ -61,6 +61,11 @@ function getPaginationText(rows, page_size) {
     let page_num = parseInt(getQueryParam("page")) || 1;
     let countElements = rows.length;
 
+    if (countElements == 0)
+    {
+       return "";
+    }
+
     return GetPaginationNavSimple(page_num);
 }
 
@@ -113,7 +118,7 @@ let currentgetIndicators = 0;
 function getIndicators(attempt=1) {
     let requestCurrentgetIndicators = ++currentgetIndicators;
 
-    let url = '/get-indicators';
+    let url = '/json-indicators';
     
     $.ajax({
        url: url,
@@ -256,7 +261,7 @@ function processMenuData(data, container) {
 
 
 function getMenuSearchContainer() {
-    let link = "get-search-container";
+    let link = "json-search-container";
     getDynamicJson(link, function(data) {
         processMenuData(data, '#MenuSearchContainer');
     });
@@ -264,7 +269,7 @@ function getMenuSearchContainer() {
 
 
 function getMenuGlobalContainer() {
-    let link = "get-global-container";
+    let link = "json-global-container";
     getDynamicJson(link, function(data) {
         processMenuData(data, '#MenuGlobalContainer');
     });
@@ -272,7 +277,7 @@ function getMenuGlobalContainer() {
 
 
 function getMenuPersonalContainer() {
-    let link = "get-personal-container";
+    let link = "json-personal-container";
     getDynamicJson(link, function(data) {
         processMenuData(data, '#MenuPersonalContainer');
     });
@@ -280,7 +285,7 @@ function getMenuPersonalContainer() {
 
 
 function getMenuTools() {
-    let link = "get-tools-container";
+    let link = "json-tools-container";
     getDynamicJson(link, function(data) {
         processMenuData(data, '#MenuToolsContainer');
     });
@@ -288,7 +293,7 @@ function getMenuTools() {
 
 
 function getMenuUsers() {
-    let link = "get-users-container";
+    let link = "json-users-container";
     getDynamicJson(link, function(data) {
         processMenuData(data, '#MenuUsersContainer');
     });

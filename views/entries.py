@@ -16,21 +16,25 @@ from rsshistory.webtools import (
 def v_entries(request):
     text = ""
 
-    link = request.args.get("link") or ""
-    source_id = request.args.get("source_id")
     page = request.args.get("page") or ""
     search = request.args.get("search") or ""
     view = request.args.get("view") or ""
 
-    entry_id = request.args.get("id")
     form_action_url = "/entries"
     form_method = "GET"
     form_submit_button_name = "Search"
 
     context = {}
     context["query_page"] = "/entries-json"
-    context["search_suggestions_page"] = "/get-search-suggestions-entries"
+    context["search_suggestions_page"] = "/json-search-suggestions-entries"
     context["search_history_page"] = "/json-user-search-history"
+    javascript_list_utilities = get_template("javascript_list_utilities.js", context=context)
+
+    context = {}
+    context["query_page"] = "/entries-json"
+    context["search_suggestions_page"] = "/json-search-suggestions-entries"
+    context["search_history_page"] = "/json-user-search-history"
+    context["javascript_list_utilities"] = javascript_list_utilities
     entries_list__script = get_template("entry_list__script.js", context = context)
 
     context = {}
@@ -76,24 +80,13 @@ def v_entry(request):
 
     link = f"/entry-json?entry_id={id}"
 
-    text = """
-    <div class="container">
-       <div id="entryData"></div>
-    </div>
+    context = {}
+    context["link"] = link
+    entry_detail__script = get_template("entry_detail__script.js", context=context)
 
-    <script>
-        let loading_text = getSpinnerText();
-        $('#entryData').html(loading_text);
-
-        getDynamicJson("{}", function(entry) {{
-            var finished_text = getEntryDetailText(entry);
-            $('#entryData').html(finished_text);
-
-            document.title = entry.title;
-        }});
-        getDislikeData(1, entry_id={});
-    </script>
-    """.format(link, id)
+    context = {}
+    context["entry_detail__script"] = entry_detail__script
+    text = get_template("entry_detail.html", context=context)
 
     return get_html(id=0, body=text, title="Entries")
 

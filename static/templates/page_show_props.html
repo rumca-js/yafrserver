@@ -1,0 +1,45 @@
+<div class="container">
+   <div id="formDiv" style="margin-top: 20vh;">
+      <form id="theForm" action="" method="">
+          <div class="form-group row">
+          
+             <label for="id_link" class="col-sm-2 col-form-label">Link</label>
+             <div class="col-sm-10">
+                <div>
+                <input type="text" name="link" maxlength="500" size="100" placeholder="Input URL" autofocus="" required="" id="id_link">
+                </div>
+             
+             </div>
+          </div>
+          
+          <div class="form-group row">
+             <label for="id_browser" class="col-sm-2 col-form-label">Browser</label>
+             <div class="col-sm-10">
+                <div>
+                <select name="browser" id="id_browser">
+                     <option value="-2">Automatic</option>
+                   
+                     <option value="1">RequestsCrawler</option>
+                   
+                     <option value="7">SeleniumChromeFull</option>
+                   
+                   </select>
+                </div>
+             </div>
+          </div>
+          <button type="submit" id="btnFetch" value="Submit" class="btn btn-primary btnFilterTrigger" role="button">Show</button>
+      </form>
+   
+   </div>
+   
+   <ul>
+       <li>Internet is dangerous, so carefully select which links you add</a>
+   </li>
+   
+   <div id="propertiesResponse">
+   </div>
+</div>
+   
+<script>
+   {page_show_props__script}
+</script>

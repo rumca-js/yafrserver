@@ -20,6 +20,8 @@ from sqlalchemy import (
     DateTime,
     delete,
     update,
+    asc,
+    desc,
 )
 from sqlalchemy.orm import sessionmaker
 from datetime import timedelta, datetime, timezone
@@ -279,7 +281,7 @@ class UserSearchHistory(Base):
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     search_query: Mapped[str] = mapped_column(String(500))
     date = mapped_column(DateTime(timezone=True), nullable=True)
-    user: Mapped[Optional[int]] = mapped_column()
+    user_id: Mapped[Optional[int]] = mapped_column()
 
 
 class UserEntryTransitionHistory(Base):
@@ -287,8 +289,8 @@ class UserEntryTransitionHistory(Base):
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     counter: Mapped[Optional[int]] = mapped_column()
     user: Mapped[Optional[int]] = mapped_column()
-    entry_from: Mapped[Optional[int]] = mapped_column()
-    entry_to: Mapped[Optional[int]] = mapped_column()
+    entry_from_id: Mapped[Optional[int]] = mapped_column()
+    entry_to_id: Mapped[Optional[int]] = mapped_column()
 
 
 class UserEntryVisitHistory(Base):
@@ -296,8 +298,8 @@ class UserEntryVisitHistory(Base):
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     visits: Mapped[Optional[int]] = mapped_column()
     date_last_visit = mapped_column(DateTime(timezone=True), nullable=True)
-    user: Mapped[Optional[int]] = mapped_column()
-    entry: Mapped[Optional[int]] = mapped_column()
+    user_id: Mapped[Optional[int]] = mapped_column()
+    entry_id: Mapped[Optional[int]] = mapped_column()
 
 
 class BackgroundJob(Base):
@@ -312,7 +314,17 @@ class BackgroundJob(Base):
     priority: Mapped[int] = mapped_column(default=0)
     errors: Mapped[int] = mapped_column(default=0)
     enabled: Mapped[bool] = mapped_column(default=True)
-    user: Mapped[Optional[int]] = mapped_column()
+    user_id: Mapped[Optional[int]] = mapped_column()
+
+
+class Browser(Base):
+    __tablename__ = "browser"
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
+    enabled: Mapped[bool] = mapped_column(default=True)
+    priority: Mapped[int] = mapped_column(default=0)
+    name: Mapped[str] = mapped_column(String(2000))
+    crawler: Mapped[str] = mapped_column(String(2000))
+    settings: Mapped[str] = mapped_column(String(2000))
 
 
 class ConfigurationEntry(Base):
@@ -432,3 +444,31 @@ class SqlModel(object):
             session.commit()
 
         return entries
+
+    def get(self, table, id):
+        Session = self.get_session()
+
+        with Session() as session:
+            query = session.query(table)
+
+            query = query.filter(table.id == id)
+
+            return query.first()
+
+    def filter(self, table, conditions=None, order_by=None, page=1, rows_per_page=200):
+        Session = self.get_session()
+
+        with Session() as session:
+            query = session.query(table)
+
+            if conditions:
+                for condition in conditions:
+                    query = query.filter(condition)
+
+            if order_by:
+                query = query.order_by(*order_by)
+
+            offset = (page - 1) * rows_per_page
+            query = query.offset(offset).limit(rows_per_page)
+
+            return query.all()

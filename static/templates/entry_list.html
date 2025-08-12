@@ -1,36 +1,38 @@
-<form id="filterForm" action="{form_action_url}" method="{form_method}">
-
-   <label for="id_search" class="col-form-label"></label>
-
-   <span>
-   <input type="text" name="search" maxlength="500" size="100" autofocus="" aria-describedby="id_search_helptext" id="id_search">
-   <datalist id="formDataList">
-   </datalist>
-   </span>
-
-   <div class="input-group" style="display:inline">
-      <a id="btnSearchHistory" class="btn btn-outline-secondary" href="#searchHistory" title="Search history">
-         ⌄
-      </a>
-
-         <button id="btnFilterForm" type="submit" value="{form_submit_button_name}" class="btn btn-primary btnFilterTrigger" role="button">{form_submit_button_name}</button>
-
-      <a id="btnSearchSyntax" class="btn btn-outline-secondary" href="#searchSyntax" title="Search syntax">
-        ?
-      </a>
-   </div>
-
-   <div id="searchSuggestions">
+<div class="container">
+   <form id="filterForm" action="{form_action_url}" method="{form_method}">
+   
+      <label for="id_search" class="col-form-label"></label>
+   
+      <span>
+      <input type="text" name="search" maxlength="500" size="100" autofocus="" aria-describedby="id_search_helptext" id="id_search">
+      <datalist id="formDataList">
+      </datalist>
+      </span>
+   
+      <div class="input-group" style="display:inline">
+         <a id="btnSearchHistory" class="btn btn-outline-secondary" href="#searchHistory" title="Search history">
+            ⌄
+         </a>
+   
+            <button id="btnFilterForm" type="submit" value="{form_submit_button_name}" class="btn btn-primary btnFilterTrigger" role="button">{form_submit_button_name}</button>
+   
+         <a id="btnSearchSyntax" class="btn btn-outline-secondary" href="#searchSyntax" title="Search syntax">
+           ?
+         </a>
+      </div>
+   
+      <div id="searchSuggestions">
+      </div> 
+   </form>
+   
+   <div id="searchHistory">
    </div> 
-</form>
-
-<div id="searchHistory">
-</div> 
-
-<div id="searchSyntax"></div>
-
-<div id="listData" class="container"></div>
-<div id="pagination" class="container"></div>
+   
+   <div id="searchSyntax"></div>
+   
+   <div id="listData" class="container"></div>
+   <div id="pagination" class="container"></div>
+</div>
 
 <script>
  {entries_list__script}

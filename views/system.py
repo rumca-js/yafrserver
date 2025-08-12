@@ -50,7 +50,7 @@ def v_search(request):
 
     return get_html(id=0, body=text, title="Search")
 
-def v_get_indicators(request):
+def v_json_indicators(request):
     c = Configuration.get_object()
     status = Status.get_object()
 
@@ -105,7 +105,7 @@ def v_get_indicators(request):
     return jsonify(data)
 
 
-def v_get_search_container(request):
+def v_json_search_container(request):
     c = Configuration.get_object()
 
     data = {}
@@ -137,7 +137,7 @@ def v_get_search_container(request):
     return jsonify(data)
 
 
-def v_get_global_container(request):
+def v_json_global_container(request):
     data = {}
 
     rows = []
@@ -160,7 +160,7 @@ def v_get_global_container(request):
     return jsonify(data)
 
 
-def v_get_personal_container(request):
+def v_json_personal_container(request):
     data = {}
 
     rows = []
@@ -183,7 +183,7 @@ def v_get_personal_container(request):
     return jsonify(data)
 
 
-def v_get_tools_container(request):
+def v_json_tools_container(request):
     data = {}
 
     rows = []
@@ -200,7 +200,7 @@ def v_get_tools_container(request):
     return jsonify(data)
 
 
-def v_get_users_container(request):
+def v_json_users_container(request):
     data = {}
 
     rows = []

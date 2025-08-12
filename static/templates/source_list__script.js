@@ -1,4 +1,6 @@
 function getRowsList(rows) {
-  return getEntriesList(rows);
+  return getSourcesList(rows);
 }
+
+
 {javascript_list_utilities}
