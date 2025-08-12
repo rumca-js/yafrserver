@@ -38,7 +38,7 @@ def v_search_internet(request):
     c = Configuration.get_object()
 
     text = """
-        <h1>Search views</h1>
+        <h1>Search</h1>
         <ul>
     """
 
@@ -54,6 +54,39 @@ def v_search_internet(request):
               <img scr="/static/icons/" />
               {gateway.title} @ {gateway.link}
               {gateway_description}
+            </a>
+        </li>
+        """
+
+    text += "</ul>"
+
+    return get_html(id=0, body=text, title="Searchviews")
+
+
+def v_searchviews(request):
+    c = Configuration.get_object()
+
+    text = """
+        <h1>Search views</h1>
+        <ul>
+    """
+
+    views = c.model.all(SearchView)
+    for view in views:
+        text += f"""
+        <li>
+            <a href="/searchview?searchview_id={view.id}" title="{view.hover_text}">
+              <div>{view.id}</div>
+              <div>{view.default}</div>
+              <div>{view.name}</div>
+              <div>Priority: {view.priority}</div>
+              <div>Filter statement: {view.filter_statement}</div>
+              <div>Order by: {view.order_by}</div>
+              <div>Entry limit: {view.entry_limit}</div>
+              <div>Auto fetch: {view.auto_fetch}</div>
+              <div>Date: {view.date_published_day_limit}</div>
+              <div>Date: {view.date_created_day_limit}</div>
+              <div>User: {view.user}</div>
             </a>
         </li>
         """

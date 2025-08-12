@@ -96,7 +96,7 @@ class AlchemyRowHandler(object):
 
 
 class AlchemySearch(object):
-    def __init__(self, db, search_term, row_handler=None, table=None, rows_per_page=None, page=None, ignore_case=True, order_by=None, ascending=False):
+    def __init__(self, db, search_term, row_handler=None, table=None, rows_per_page=None, page=None, ignore_case=True, order_by=None, init_conditions=None):
         self.db = db
         self.search_term = search_term
 
@@ -107,8 +107,8 @@ class AlchemySearch(object):
 
         self.table = table
         self.ignore_case = ignore_case
-        self.ascending = ascending
         self.order_by = order_by
+        self.init_conditions = init_conditions
 
         self.get_destination_table()
 
@@ -139,30 +139,21 @@ class AlchemySearch(object):
         combined_query_conditions = self.get_query_conditions()
         print(combined_query_conditions)
 
+        if combined_query_conditions is not None and self.init_conditions is not None:
+            combined_query_conditions = and_(combined_query_conditions, self.init_conditions)
+        elif self.init_conditions is not None:
+            combined_query_conditions = self.init_conditions
+
         rows = []
         with self.db.connect() as connection:
-            order_by_column_name = "id"
-            if self.order_by:
-                order_by_column_name = self.order_by
-
-            order_by_column = getattr(self.destination_table.c, order_by_column_name, None)
-
-            if order_by_column is None:
-                raise AttributeError(f"Invalid order_by column: {self.order_by}")
-
-                # Determine sorting order
-                order_by_clause = (
-                    order_by_column.asc() if self.ascending else order_by_column.desc()
-                )
-            else:
-                order_by_clause = order_by_column.asc()
-
             if combined_query_conditions is None:
                 stmt = select(self.destination_table)
             else:
                 stmt = select(self.destination_table).where(combined_query_conditions)
 
-            stmt = stmt.order_by(order_by_clause)
+            if self.order_by:
+                stmt = stmt.order_by(*self.order_by)
+
             print(stmt)
 
             if self.rows_per_page and self.page:

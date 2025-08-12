@@ -150,6 +150,11 @@ def searchviews_initialize():
     return v_searchviews_initialize(request)
 
 
+@app.route("/searchviews")
+def searchviews():
+    return v_searchviews(request)
+
+
 @app.route("/json-search-suggestions-entries")
 def json_search_suggestions_entries():
     return v_json_search_suggestions_entries(request)
