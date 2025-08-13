@@ -388,22 +388,37 @@ class ConfigurationEntry(Base):
     max_user_entry_visit_history: Mapped[int] = mapped_column(default=1)
     max_number_of_user_search: Mapped[int] = mapped_column(default=1)
     vote_min: Mapped[int] = mapped_column(default=-100)
-    vote_max: Mapped[int] = mapped_column(default=-100)
-    number_of_comments_per_day: Mapped[int] = mapped_column(default=-100)
+    vote_max: Mapped[int] = mapped_column(default=100)
+    number_of_comments_per_day: Mapped[int] = mapped_column(default=1)
 
     time_zone: Mapped[int] = mapped_column(default=-100)
-    display_style: Mapped[int] = mapped_column(default=-100)
-    display_type: Mapped[int] = mapped_column(default=-100)
+    display_style: Mapped[str] = mapped_column(String(500))
+    display_type: Mapped[str] = mapped_column(String(500))
     show_icons: Mapped[bool] = mapped_column(default=False)
     thumbnails_as_icons: Mapped[bool] = mapped_column(default=False)
     small_icons: Mapped[bool] = mapped_column(default=False)
     local_icons: Mapped[bool] = mapped_column(default=False)
-    links_per_page: Mapped[int] = mapped_column(default=-100)
-    sources_per_page: Mapped[int] = mapped_column(default=-100)
-    max_links_per_page: Mapped[int] = mapped_column(default=-100)
-    max_sources_per_page: Mapped[int] = mapped_column(default=-100)
-    max_number_of_related_links: Mapped[int] = mapped_column(default=-100)
+    links_per_page: Mapped[int] = mapped_column(default=100)
+    sources_per_page: Mapped[int] = mapped_column(default=100)
+    max_links_per_page: Mapped[int] = mapped_column(default=100)
+    max_sources_per_page: Mapped[int] = mapped_column(default=100)
+    max_number_of_related_links: Mapped[int] = mapped_column(default=100)
     debug_mode: Mapped[bool] = mapped_column(default=False)
+
+
+class UserConfig(Base):
+    __tablename__ = "userconfig"
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
+    username: Mapped[str] = mapped_column(String(500))
+    display_style: Mapped[str] = mapped_column(String(500))
+    display_type: Mapped[str] = mapped_column(String(500))
+    display_type: Mapped[str] = mapped_column(String(500))
+    show_icons: Mapped[bool] = mapped_column(default=False)
+    thumbnails_as_icons: Mapped[bool] = mapped_column(default=False)
+    small_icons: Mapped[bool] = mapped_column(default=False)
+    links_per_page: Mapped[int] = mapped_column(default=100)
+    sources_per_page: Mapped[int] = mapped_column(default=100)
+    user_id: Mapped[Optional[int]] = mapped_column()
 
 
 class SqlModel(object):

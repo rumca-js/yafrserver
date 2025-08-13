@@ -1,15 +1,16 @@
-let search_suggestions = [];
-let default_page_size = 200;
-let user_age = 0;
-
 let view_display_type = "standard";
 let view_show_icons = true;
 let view_small_icons = false;
 let show_pure_links = false;
 let highlight_bookmarks = false;
-let sort_function = "-date_published"; // page_rating_votes, date_published
+let user_age = 0;
 
+let search_suggestions = [];
+let default_page_size = 200;
+let sort_fuction="-date_published";
 let common_indicators = null;
+
+let debug = false;
 
 
 function add_text(error_line, text) {
@@ -23,6 +24,76 @@ function add_text(error_line, text) {
 
     return result;
 }
+
+
+function setDisplayMode() {
+    if (view_display_style == "style-light") {
+       setLightMode();
+
+       let icons = document.querySelectorAll('.mainbutton-icon');
+       
+       icons.forEach(icon => {
+           icon.style.filter = "";
+       });
+
+       icons = document.querySelectorAll('.content-icon');
+       
+       icons.forEach(icon => {
+           icon.style.filter = "";
+       });
+    }
+    if (view_display_style == "style-dark") {
+       setDarkMode();
+
+       let icons = document.querySelectorAll('.mainbutton-icon');
+       
+       icons.forEach(icon => {
+           icon.style.filter = 'invert(1)';
+       });
+
+       icons = document.querySelectorAll('.content-icon');
+       
+       icons.forEach(icon => {
+           icon.style.filter = 'invert(1)';
+       });
+    }
+}
+
+
+function setLightMode() {
+    view_display_style = "style-light";
+
+    const linkElement = document.querySelector('link[rel="stylesheet"][href*="styles.css_style-"]');
+    if (linkElement) {
+        // TODO replace rsshistory with something else
+        //linkElement.href = "/django/rsshistory/css/styles.css_style-light.css";
+    }
+
+    const htmlElement = document.documentElement;
+    htmlElement.setAttribute("data-bs-theme", "light");
+
+    const navbar = document.getElementById('navbar');
+    navbar.classList.remove('navbar-light', 'bg-dark');
+    navbar.classList.add('navbar-dark', 'bg-light');
+}
+
+
+function setDarkMode() {
+    view_display_style = "style-dark";
+
+    const linkElement = document.querySelector('link[rel="stylesheet"][href*="styles.css_style-"]');
+    if (linkElement) {
+        //linkElement.href = "/django/rsshistory/css/styles.css_style-dark.css";
+    }
+
+    const htmlElement = document.documentElement;
+    htmlElement.setAttribute("data-bs-theme", "dark");
+
+    const navbar = document.getElementById('navbar');
+    navbar.classList.remove('navbar-light', 'bg-light');
+    navbar.classList.add('navbar-dark', 'bg-dark');
+}
+
 
 
 function getInitialSearchSuggestsions() {
@@ -242,12 +313,18 @@ function processMenuData(data, container) {
     <ul class="dropdown-menu">
         `;
 
+
+    let style_text = "";
+    if (view_display_style == "style-dark") {
+        style_text = "filter:invert(1)";
+    }
+
     data.rows.forEach(row => {
 
        finished_text += `
        <li>
          <a href="${row.link}" class="dropdown-item" title="${row.title}">
-           <img src="${row.icon}" class="mainbutton-icon" />
+           <img src="${row.icon}" class="mainbutton-icon" style="${style_text}"/>
            ${row.title}
          </a>
        </li>
@@ -316,6 +393,16 @@ function performSearch() {
 }
 
 
+function getBasicPageElements() {
+    getIndicators();
+    getMenuSearchContainer();
+    getMenuGlobalContainer();
+    getMenuPersonalContainer();
+    getMenuTools();
+    getMenuUsers();
+}
+
+
 //-----------------------------------------------
 $(document).on('click', '.btnNavigation', function(e) {
     e.preventDefault();
@@ -341,19 +428,6 @@ $(document).on('keydown', "#searchInput", function(e) {
 
         performSearch();
     }
-});
-
-
-//-----------------------------------------------
-document.addEventListener('DOMContentLoaded', () => {
-    console.log("Initializing")
-
-    getIndicators();
-    getMenuSearchContainer();
-    getMenuGlobalContainer();
-    getMenuPersonalContainer();
-    getMenuTools();
-    getMenuUsers();
 });
 
 
@@ -384,4 +458,3 @@ $(document).on('click', '#dropdownButton', function(e) {
         hideSearchSuggestions();
     }
 });
-

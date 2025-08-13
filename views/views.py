@@ -56,8 +56,10 @@ def get_template(name, context=None):
             for item in context:
                 value = context[item]
                 key = "{"+item+ "}"
-                if not value:
+                if value is None:
                     value = ""
+                else:
+                    value = str(value)
                 data = data.replace(key, value)
 
         return data
@@ -69,9 +71,24 @@ def get_navbar():
 
 def get_header():
     c = Configuration.get_object()
-    title = c.config_entry.instance_title
+    user_config = c.config_entry
+
+    title = user_config.instance_title
+
+    context = {}
+    context["user_config.display_style"] = user_config.display_style
+    context["user_config.display_type"] = user_config.display_type
+
+    context["user_config.show_icons"] = user_config.show_icons
+    context["user_config.small_icons"] = user_config.small_icons
+    context["debug"] = user_config.debug_mode
+    context["user_config.get_age"] = 18
+
+    base_script = get_template("base_script.js", context=context)
+
     context = {}
     context["title"] = title
+    context["base_script"] = base_script
 
     return get_template("base_head.html", context=context)
 
